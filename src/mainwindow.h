@@ -1,7 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "graphcontainer.h"
+#include "logvisual.h"
+#include "tsqueue.h"
+
 #include <QMainWindow>
+#include <QToolBar>
+#include <thread>
 
 
 /*!
@@ -10,6 +16,15 @@
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+private:
+    LogVisual lv;
+    QWidget centralW;
+    QToolBar *fileToolbar;
+    GraphContainer gCont;
+    std::thread *textThread=nullptr;
+
+    static void pollTextThread(TSQueue *tsq, LogVisual *lv);
 public:
     /*!
      * \brief MainWindow Constructor
@@ -17,6 +32,11 @@ public:
      */
     MainWindow(QWidget *parent = nullptr);
 
+    /*!
+     * \brief setQueue sets the queue where the text will be polled from and starts the thread
+     * \param tsq the ts queue
+     */
+    void setQueue(TSQueue *tsq);
 signals:
 
 public slots:

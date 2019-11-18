@@ -8,19 +8,21 @@
 LogVisual::LogVisual(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineArea(this);
-    //connect source, signal _> dest, memer
+    //connect source, signal _> dest, member
     connect(this, &LogVisual::blockCountChanged, this, &LogVisual::updateLineNumberAreaWidth);
     connect(this, &LogVisual::updateRequest, this, &LogVisual::updateLineNumberArea);
     connect(this, &LogVisual::cursorPositionChanged, this, &LogVisual::highlightCurrentLine);
+    connect(this, &LogVisual::lineAdded, this, &LogVisual::pushLine);
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
+    this->setReadOnly(true);
 }
 
 int LogVisual::lineNumberAreaWidth()
 {
     int digits = 1;
-    int max = qMax(1, blockCount());
+    int max = blockCount()>0?blockCount():1;
     while (max >= 10) {
         max /= 10;
         ++digits;
@@ -31,18 +33,23 @@ int LogVisual::lineNumberAreaWidth()
     return space;
 }
 
+void LogVisual::pushLine(QString line)
+{
+    this->insertPlainText(line);
+}
+
 void LogVisual::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
-    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);//Leave space for numbers
 }
 
 
 void LogVisual::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
-        lineNumberArea->scroll(0, dy);
+        lineNumberArea->scroll(0, dy);//if change in y, scroll
     else
-        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());//resize
 
     if (rect.contains(viewport()->rect()))
         updateLineNumberAreaWidth(0);
@@ -51,7 +58,6 @@ void LogVisual::updateLineNumberArea(const QRect &rect, int dy)
 void LogVisual::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
-
     QRect cr = contentsRect();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
@@ -59,8 +65,7 @@ void LogVisual::resizeEvent(QResizeEvent *e)
 void LogVisual::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
-
-    if (!isReadOnly()) {
+    //if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(Qt::yellow).lighter(160);
@@ -70,7 +75,7 @@ void LogVisual::highlightCurrentLine()
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
         extraSelections.append(selection);
-    }
+    //}
 
     setExtraSelections(extraSelections);
 }

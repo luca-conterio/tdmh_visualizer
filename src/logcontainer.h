@@ -3,12 +3,15 @@
 #include "logline.h"
 
 #include <vector>
+#include <mutex>
 /*!
  * \brief The LogContainer class contains the information extracted from the log file so far
  */
 class LogContainer
 {
 private:
+    private:
+    std::mutex storeMutex;
     std::vector<std::vector<LogLine>*> store;
 
 
@@ -42,7 +45,7 @@ public:
      * \param maxLine maximum line number to consider
      * \return the LogLine, if none is present a zero-masks one is returned
      */
-    LogLine findLine(unsigned int nodeId, unsigned int maxLine) const;
+    LogLine findLine(unsigned int nodeId, unsigned int maxLine);
 
     /*!
      * \brief getSize returns the current size of the store(in number of nodes present)

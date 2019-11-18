@@ -6,22 +6,26 @@
 #include <QWidget>
 
 
-
+/*!
+ * \brief The LineArea class is the container for the line numbers on the GUI
+ */
 class LineArea : public QWidget
 {
 public:
-    LineArea(LogVisual *logV) : QWidget(logV) {
-        this->logV=logV;
-    }
+    /*!
+     * \brief LineArea builds a number column linked to a LogVisual parent
+     * \param logV the LogVisual parent
+     */
+    LineArea(LogVisual *logV);
 
-    QSize sizeHint() const override {
-        return QSize(logV->lineNumberAreaWidth(), 0);
-    }
+    /*!
+     * \brief sizeHint returns a QSize object
+     * \return the QSize object
+     */
+    //QSize sizeHint() const override;
 
 protected:
-    void paintEvent(QPaintEvent *event) override {
-        logV->lineNumberAreaPaintEvent(event);
-    }
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     LogVisual *logV;

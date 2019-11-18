@@ -19,6 +19,7 @@ LogContainer::LogContainer(unsigned int initSize)
 
 void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, std::vector<char> strong, std::vector<char> weak)
 {
+    std::lock_guard<std::mutex> lck(storeMutex);
     if(nodeId>=store.size()){
         //If node was not accounted for, grow the store size to account for it
         for(unsigned long i=store.size();i<=nodeId;i++){
@@ -29,8 +30,9 @@ void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, std::vector<
     store[nodeId]->push_back(a);
 }
 
-LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine) const
+LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine)
 {
+    std::lock_guard<std::mutex> lck(storeMutex);
     if(nodeId>=store.size()){
         std::cout << "Invalid node id "<<nodeId <<"\n";
         return LogLine(nodeId,0,new std::vector<bool>(), new std::vector<bool>());

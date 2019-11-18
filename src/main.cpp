@@ -1,9 +1,8 @@
 #include "configuration.h"
 #include "logcontainer.h"
+#include "logloader.h"
 #include "logvisual.h"
 
-/*#include <QGuiApplication>
-#include <QQmlApplicationEngine>*/
 #include <iostream>
 
 
@@ -35,20 +34,17 @@ int main(int argc, char *argv[])
 
     std::cout.flush();
 
-
+    LogLoader lld;
+    LogContainer * logC=new LogContainer(static_cast<unsigned int>(cfg.getNodeCount()));
+    TSQueue tsq;
 
     QApplication app(argc, argv);
 
-    /*QPushButton *hello = new QPushButton("This is a simple button");
-    hello->resize(100, 30);
-    hello->show();*/
     MainWindow *mW=new MainWindow();
     mW->show();
     mW->setStyleSheet("QMainWindow {background: 'yellow';}");
+    mW->setQueue(&tsq);
 
-
-    /*LogVisual editor;
-    editor.setWindowTitle(QObject::tr("Code Editor Example"));
-    editor.show();*/
+    lld.load(cfg.getLogPath(),cfg.getMode(),logC,&tsq);
     return app.exec();
 }
