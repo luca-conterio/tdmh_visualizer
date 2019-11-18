@@ -8,6 +8,11 @@
  */
 class Configuration
 {
+public:
+
+    /*!
+     * \brief The MODE enum represents the three supported ways to read a logfile
+     */
     enum MODE {BATCH, STAT, RTIME};
 private:
 
@@ -39,6 +44,12 @@ public:
       * \return log path string
       */
      std::string getLogPath() const;
+
+     /*!
+      * \brief getMode returns the mode that has been selected
+      * \return the selected mode
+      */
+     MODE getMode();
 };
 
 #endif // CONFIGURATION_H

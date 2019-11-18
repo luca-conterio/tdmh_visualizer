@@ -1,5 +1,5 @@
-QT += quick
-
+#QT += quick
+QT += widgets
 CONFIG += c++11
 TEMPLATE = app
 TARGET = src
@@ -16,8 +16,12 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += main.cpp \
     configuration.cpp \
+    linearea.cpp \
     logcontainer.cpp \
-    logline.cpp
+    logline.cpp \
+    logloader.cpp \
+    logvisual.cpp \
+    mainwindow.cpp
 
 
 RESOURCES += qml.qrc
@@ -35,10 +39,16 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     configuration.h \
+    linearea.h \
     logcontainer.h \
-    logline.h
+    logline.h \
+    logloader.h \
+    logvisual.h \
+    mainwindow.h
 
 
 #TEMPLATE = subdirs
 
 #SUBDIRS +=
+
+FORMS +=

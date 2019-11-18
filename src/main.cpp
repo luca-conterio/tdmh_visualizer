@@ -1,8 +1,14 @@
 #include "configuration.h"
+#include "logcontainer.h"
+#include "logvisual.h"
 
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+/*#include <QGuiApplication>
+#include <QQmlApplicationEngine>*/
 #include <iostream>
+
+
+#include <QtWidgets>
+#include <mainwindow.h>
 /*! \file */
 
 /*!
@@ -18,30 +24,31 @@ int main(int argc, char *argv[])
         std::cout << "No configuration file given, using defaults\n";
         cfg.loadCfg(nullptr);
     }else{
+        std::cout<< "Loading file:"<<argv[1]<<"\n";
         cfg.loadCfg(argv[1]);
     }
 
     std::cout<< "Loaded "<<cfg.getNodeCount()<<" nodes\n";
 
-
-
+    std::cout<<"Mode: "<<cfg.getMode()<<"\n";
+    std::cout<<"Log path: "<<cfg.getLogPath()<<"\n";
 
     std::cout.flush();
 
 
 
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication app(argc, argv);
 
-    QGuiApplication app(argc, argv);
+    /*QPushButton *hello = new QPushButton("This is a simple button");
+    hello->resize(100, 30);
+    hello->show();*/
+    MainWindow *mW=new MainWindow();
+    mW->show();
+    mW->setStyleSheet("QMainWindow {background: 'yellow';}");
 
-    QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.load(url);
 
-    return QGuiApplication::exec();
+    /*LogVisual editor;
+    editor.setWindowTitle(QObject::tr("Code Editor Example"));
+    editor.show();*/
+    return app.exec();
 }

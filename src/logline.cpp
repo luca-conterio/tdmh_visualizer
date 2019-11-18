@@ -1,5 +1,14 @@
 #include "logline.h"
 
-#include <utility>
+LogLine::LogLine(unsigned int nodeId, unsigned int lineN, std::vector<bool> *strongMask, std::vector<bool> *weakMask):nodeId(nodeId),lineN(lineN),strongMask(strongMask),weakMask(weakMask){}
 
-LogLine::LogLine(unsigned int nodeId, unsigned int lineN, boost::dynamic_bitset<> strongMask, boost::dynamic_bitset<> weakMask):nodeId(nodeId),lineN(lineN),strongMask(std::move(strongMask)),weakMask(std::move(weakMask)){};
+LogLine::LogLine(const LogLine &oth):nodeId(oth.nodeId),lineN(oth.lineN),strongMask(new std::vector<bool>(*oth.strongMask)),weakMask(new std::vector<bool>(*oth.weakMask))
+{
+
+};
+
+LogLine::~LogLine()
+{
+    delete strongMask;
+    delete weakMask;
+}

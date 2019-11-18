@@ -1,6 +1,6 @@
 #ifndef LOGLINE_H
 #define LOGLINE_H
-#include <boost/dynamic_bitset.hpp>
+#include <vector>
 /*!
  * \brief The LogLine class represents an entry in the log that carries adjacency values
  */
@@ -18,23 +18,31 @@ public:
     const unsigned int lineN;
 
     /*!
-     * \brief strongMask a bitvector containing the mask of strong links
+     * \brief strongMask pointer to a bitvector containing the mask of strong links
      */
-    const boost::dynamic_bitset<> strongMask;
+    const std::vector<bool> *strongMask;
 
     /*!
-     * \brief weakMask a bitvector containing the mask of weak links
+     * \brief weakMask pointer to a bitvector containing the mask of weak links
      */
-    const boost::dynamic_bitset<> weakMask;
+    const std::vector<bool> *weakMask;
 
     /*!
      * \brief LogLine sets all the values of the log line
      * \param nodeId id of the node the masks refer to
      * \param lineN line number
-     * \param strongMask a bitvector containing the mask of strong links
-     * \param weakMask a bitvector containing the mask of weak links
+     * \param strongMask pointer to a bitvector containing the mask of strong links
+     * \param weakMask pointer to a bitvector containing the mask of weak links
      */
-    LogLine(unsigned int nodeId, unsigned int lineN, boost::dynamic_bitset<> strongMask, boost::dynamic_bitset<> weakMask);
+    LogLine(unsigned int nodeId, unsigned int lineN, std::vector<bool> *strongMask, std::vector<bool> *weakMask);
+
+    /*!
+     * \brief LogLine copy constructor for LogLine, uses vector copy constructor to copy the masks
+     * \param oth the line to copy
+     */
+    LogLine(const LogLine &oth);
+
+    ~LogLine();
 
     /*!
      * \brief comparator implements less than operator for line number upper_bound search

@@ -1,20 +1,18 @@
 #include "logcontainer.h"
 #include <iostream>
-#include <utility>
-
-
-boost::dynamic_bitset<> LogContainer::toDynSet(std::vector<char> mask) const
+#include <algorithm>
+std::vector<bool> *LogContainer::toBoolVec(std::vector<char> mask) const
 {
-    boost::dynamic_bitset<> out(mask.size());
-    for(unsigned long i=0;i<out.size();i++){
-        out[i]=mask[i];
+    std::vector<bool>* out=new std::vector<bool>(mask.size());
+    for(unsigned long i=0;i<out->size();i++){
+        out->at(i)=(mask[i]=='1');
     }
     return out;
 }
 
-LogContainer::LogContainer(int initSize)
+LogContainer::LogContainer(unsigned int initSize)
 {
-    for(int i=0;i<initSize;i++){
+    for(unsigned int i=0;i<initSize;i++){
         store.push_back(new std::vector<LogLine>);
     }
 }
@@ -22,10 +20,12 @@ LogContainer::LogContainer(int initSize)
 void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, std::vector<char> strong, std::vector<char> weak)
 {
     if(nodeId>=store.size()){
-        std::cout << "Invalid node id "<<nodeId <<"\n";
-        return;
+        //If node was not accounted for, grow the store size to account for it
+        for(unsigned long i=store.size();i<=nodeId;i++){
+            store.push_back(new std::vector<LogLine>);
+        }
     }
-    LogLine a(nodeId,lineN,toDynSet(std::move(strong)),toDynSet(std::move(weak)));
+    LogLine a(nodeId,lineN,toBoolVec(strong),toBoolVec(weak));
     store[nodeId]->push_back(a);
 }
 
@@ -33,13 +33,22 @@ LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine) const
 {
     if(nodeId>=store.size()){
         std::cout << "Invalid node id "<<nodeId <<"\n";
-        return LogLine(nodeId,0,boost::dynamic_bitset<>(),boost::dynamic_bitset<>());
+        return LogLine(nodeId,0,new std::vector<bool>(), new std::vector<bool>());
     }
-    auto found= std::upper_bound (store[nodeId]->begin(), store[nodeId]->end(), 2, LogLine::comparator);
-    if((found==store[nodeId]->end()) && found->lineN>maxLine){
-        return LogLine(nodeId,0,boost::dynamic_bitset<>(),boost::dynamic_bitset<>());
+    auto found= std::upper_bound (store[nodeId]->begin(), store[nodeId]->end(), maxLine, LogLine::comparator);
+
+    if( (found==store[nodeId]->begin()) ){
+        return LogLine(nodeId,0,new std::vector<bool>(),new std::vector<bool>());
     }
-    return *found;
+    if((found==store[nodeId]->end())){
+        return store[nodeId]->back();
+    }
+    return *(found-1);
+}
+
+unsigned int LogContainer::getSize()
+{
+    return static_cast<unsigned int> (store.size());
 }
 
 LogContainer::~LogContainer()
