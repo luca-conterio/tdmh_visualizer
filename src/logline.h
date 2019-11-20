@@ -6,7 +6,7 @@
  */
 class LogLine
 {
-public:
+private:
     /*!
      * \brief nodeId id of the node the masks refer to
      */
@@ -27,6 +27,7 @@ public:
      */
     const std::vector<bool> *weakMask;
 
+public:
     /*!
      * \brief LogLine sets all the values of the log line
      * \param nodeId id of the node the masks refer to
@@ -42,7 +43,7 @@ public:
      */
     LogLine(const LogLine &oth);
 
-    ~LogLine();
+    virtual ~LogLine();
 
     /*!
      * \brief comparator implements less than operator for line number upper_bound search
@@ -53,6 +54,30 @@ public:
     static bool comparator(unsigned int val,const LogLine& a){
       return val<a.lineN;
     }
+
+    /*!
+     * \brief getNodeId nodeId getter
+     * \return nodeId
+     */
+    unsigned int getNodeId() const;
+
+    /*!
+     * \brief getLineN lineN getter
+     * \return lineN
+     */
+    unsigned int getLineN() const;
+
+    /*!
+     * \brief getStrongMask strongMask getter
+     * \return strongMask
+     */
+    const std::vector<bool> *getStrongMask() const;
+
+    /*!
+     * \brief getWeakMask weakMask getter
+     * \return weakMask
+     */
+    const std::vector<bool> *getWeakMask() const;
 };
 
 #endif // LOGLINE_H

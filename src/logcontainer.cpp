@@ -1,7 +1,7 @@
 #include "logcontainer.h"
 #include <iostream>
 #include <algorithm>
-std::vector<bool> *LogContainer::toBoolVec(std::vector<char> mask) const
+std::vector<bool> *LogContainer::toBoolVec(std::vector<char> &mask) const
 {
     std::vector<bool>* out=new std::vector<bool>(mask.size());
     for(unsigned long i=0;i<out->size();i++){
@@ -51,6 +51,11 @@ LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine)
 unsigned int LogContainer::getSize()
 {
     return static_cast<unsigned int> (store.size());
+}
+
+void LogContainer::process(std::string &line)
+{
+
 }
 
 LogContainer::~LogContainer()

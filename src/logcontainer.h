@@ -20,7 +20,7 @@ private:
      * \param mask input mask as a vector of chars
      * \return  pointer to the mask as a vector of bools
      */
-    std::vector<bool> *toBoolVec(std::vector<char> mask) const;
+    std::vector<bool> *toBoolVec(std::vector<char> &mask) const;
 
 public:
 
@@ -30,6 +30,10 @@ public:
      */
     LogContainer(unsigned int );
 
+    LogContainer(const LogContainer &oth)=delete ;
+    LogContainer &operator =(const LogContainer&) = delete;
+    LogContainer(const LogContainer &&oth)=delete;
+    LogContainer &operator =(const LogContainer&&) = delete;
     /*!
      * \brief addLine adds a line to the store
      * \param nodeId id of the node the line refers to
@@ -52,6 +56,12 @@ public:
      * \return the number of seen nodes
      */
     unsigned int getSize();
+
+    /*!
+     * \brief process processes a line and if useful updates the store
+     * \param line line to be processed
+     */
+    void process(std::string &line);
 
     ~LogContainer();
 };

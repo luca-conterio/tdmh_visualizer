@@ -53,3 +53,6 @@ HEADERS += \
 #TEMPLATE = subdirs
 
 #SUBDIRS +=
+
+#QMAKE_CFLAGS+="-fsanitize=address -fno-omit-frame-pointer"
+#QMAKE_LFLAGS+="-fsanitize=address"

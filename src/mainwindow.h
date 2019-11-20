@@ -23,7 +23,7 @@ private:
     QToolBar *fileToolbar;
     GraphContainer gCont;
     std::thread *textThread=nullptr;
-
+    TSQueue *ts=nullptr;
     static void pollTextThread(TSQueue *tsq, LogVisual *lv);
 public:
     /*!
@@ -37,6 +37,19 @@ public:
      * \param tsq the ts queue
      */
     void setQueue(TSQueue *tsq);
+
+    /*!
+     * \brief closeEvent extends the inherited method to break the pipe
+     * \param event QCloseEvent
+     */
+    void closeEvent (QCloseEvent *event) override;
+
+    /*!
+     * \brief setConfig sets the configuration to be used
+     * \param c the configuration
+     */
+    void setConfig(Configuration c);
+
 signals:
 
 public slots:

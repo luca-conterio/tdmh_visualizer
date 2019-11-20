@@ -15,10 +15,20 @@ public:
      */
     enum MODE {BATCH, STAT, RTIME};
 private:
-
     int node_count=default_nodes;
     std::string log_path="log.txt";
+    std::string img_path="image.jpg";
     MODE mode=BATCH;
+
+    /*!
+     * \brief pushNode pushes a new node on the nodelist
+     * \param i index
+     * \param x x position
+     * \param y y position
+     */
+    void pushNode(int i,int x, int y);
+
+    void processTuple(std::string t);
 public:
     /*!
      * \brief max_nodes default number of nodes
@@ -49,7 +59,13 @@ public:
       * \brief getMode returns the mode that has been selected
       * \return the selected mode
       */
-     MODE getMode();
+     MODE getMode() const;
+
+     /*!
+      * \brief getImgPath returns the image file path
+      * \return image log path
+      */
+     std::string getImgPath() const;
 };
 
 #endif // CONFIGURATION_H

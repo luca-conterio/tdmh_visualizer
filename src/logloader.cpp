@@ -2,13 +2,8 @@
 #include "configuration.h"
 #include <fstream>
 #include <vector>
-#include <iostream>
-LogLoader::LogLoader()
-{
 
-}
-
-void LogLoader::load(std::string path, Configuration::MODE mode, LogContainer *logC, TSQueue *queue)
+void LogLoader::load(const std::string& path, Configuration::MODE mode, LogContainer *logC, TSQueue *queue)
 {
     //this->gui=gui;
     if(loaderThread!=nullptr){return;}
@@ -26,28 +21,30 @@ void LogLoader::load(std::string path, Configuration::MODE mode, LogContainer *l
     }
 }
 
-void LogLoader::loadBatch(const std::string path, LogContainer *logC,TSQueue *queue)
+void LogLoader::loadBatch(const std::string& path, LogContainer *logC,TSQueue *queue)
 {
-    std::string fileName(path);
+    const std::string& fileName(path);
     std::string delimeter=";";
     std::ifstream file(fileName);
 
 
-    std::string *line=new std::string;
-    while (getline(file, *line))
+    std::string line;//=new std::string;
+    while (getline(file, line))
     {
         //std::cout<<"Line: "<<*line<<"\n";
-        queue->push(*line);
+        queue->push(line);
+        logC->process(line);
     }
     file.close();
+    queue->breakQueue();
 }
 
-void LogLoader::loadStat(const std::string path, LogContainer *logC,TSQueue *queue)
+void LogLoader::loadStat(const std::string& path, LogContainer *logC,TSQueue *queue)
 {
 
 }
 
-void LogLoader::loadRT(const std::string path, LogContainer *logC,TSQueue *queue)
+void LogLoader::loadRT(const std::string& path, LogContainer *logC,TSQueue *queue)
 {
 
 }

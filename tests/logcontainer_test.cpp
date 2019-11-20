@@ -33,10 +33,10 @@ void logcontainerTest::test_lineAdded()
     std::string str = "01010";
     std::vector<char> data(str.begin(), str.end());
     logC.addLine(initSize+2,100,data,data);
-    QVERIFY(logC.findLine(initSize+2,99).lineN==0);
-    QVERIFY(logC.findLine(initSize+2,100).lineN==100);
-    QVERIFY(logC.findLine(initSize+2,101).lineN==100);
-    QVERIFY(logC.findLine(25,0).lineN==0);
+    QVERIFY(logC.findLine(initSize+2,99).getLineN()==0);
+    QVERIFY(logC.findLine(initSize+2,100).getLineN()==100);
+    QVERIFY(logC.findLine(initSize+2,101).getLineN()==100);
+    QVERIFY(logC.findLine(25,0).getLineN()==0);
 }
 
 void logcontainerTest::test_multipleLinesAdded()
@@ -47,12 +47,12 @@ void logcontainerTest::test_multipleLinesAdded()
     std::vector<char> data(str.begin(), str.end());
     logC.addLine(initSize+2,100,data,data);
     logC.addLine(initSize+2,200,data,data);
-    QVERIFY(logC.findLine(initSize+2,99).lineN==0);
-    QVERIFY(logC.findLine(initSize+2,100).lineN==100);
-    QVERIFY(logC.findLine(initSize+2,101).lineN==100);
-    QVERIFY(logC.findLine(initSize+2,199).lineN==100);
-    QVERIFY(logC.findLine(initSize+2,200).lineN==200);
-    QVERIFY(logC.findLine(initSize+2,201).lineN==200);
+    QVERIFY(logC.findLine(initSize+2,99).getLineN()==0);
+    QVERIFY(logC.findLine(initSize+2,100).getLineN()==100);
+    QVERIFY(logC.findLine(initSize+2,101).getLineN()==100);
+    QVERIFY(logC.findLine(initSize+2,199).getLineN()==100);
+    QVERIFY(logC.findLine(initSize+2,200).getLineN()==200);
+    QVERIFY(logC.findLine(initSize+2,201).getLineN()==200);
 }
 
 
