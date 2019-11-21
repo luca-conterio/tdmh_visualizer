@@ -6,7 +6,7 @@
 #include <thread>
 #include <QStatusBar>
 #include <utility>
-void MainWindow::pollTextThread(TSQueue *tsq, LogVisual *lv)
+void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv)
 {
     //lv->pushLine(tsq->pop()+"\n");
     bool valid=true;
@@ -40,20 +40,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),gCont(this)
     //statusBar()->showMessage(tr("Ready"));
 }
 
-void MainWindow::setQueue(TSQueue *tsq)
+void MainWindow::setQueue(const std::shared_ptr<TSQueue>& tsq)
 {
     if(textThread!=nullptr)return;
     this->ts=tsq;
-    textThread=new std::thread(pollTextThread,tsq,&lv);
+    textThread=std::make_unique<std::thread>(pollTextThread,tsq,&lv);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMainWindow::closeEvent(event);
     if(ts!=nullptr)ts->breakQueue();
+    textThread->detach();//TODO better than this
+    lld->stop();
 }
 
-void MainWindow::setConfig(Configuration c)
+void MainWindow::setConfig(const Configuration& c, std::shared_ptr<LogLoader> lld)
 {
-    gCont.configGraph(std::move(c));
+    gCont.configGraph(c);
+    this->lld=std::move(lld);
 }

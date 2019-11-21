@@ -19,6 +19,7 @@ private slots:
     void test_addLineIncreaseSize();
     void test_lineAdded();
     void test_multipleLinesAdded();
+    void test_maskPreserved();
     /*void initTestCase(){
         qDebug("Hello init test deb");
     }*/

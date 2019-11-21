@@ -20,7 +20,7 @@ void Configuration::loadCfg(char *ptr)
     std::string line;
     while (getline(file, line))
     {
-        if(line==""||line[0]=='#')continue;
+        if(line.empty()||line[0]=='#')continue;
         std::string opt;
         std::string val;
         size_t pos=line.find('=');
@@ -115,7 +115,7 @@ static inline void rtrim(std::string &s) {
 
 void Configuration::processTuple(const std::string& t)
 {
-    if(t=="")return;
+    if(t.empty())return;
     std::vector <std::string> triple;
     std::stringstream sst(t);
     std::string intermediate;
@@ -132,7 +132,7 @@ void Configuration::processTuple(const std::string& t)
             int ny=std::stoi(triple[2]);
             pushNode(ni,nx,ny);
             return;
-        } catch (std::invalid_argument) {
+        } catch (std::invalid_argument&) {
             //std::cout <<"Invalid tuple "<<t<<" \n";
         }
     }

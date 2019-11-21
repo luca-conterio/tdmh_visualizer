@@ -1,6 +1,7 @@
 #ifndef LOGLINE_H
 #define LOGLINE_H
 #include <vector>
+#include <memory>
 /*!
  * \brief The LogLine class represents an entry in the log that carries adjacency values
  */
@@ -20,12 +21,12 @@ private:
     /*!
      * \brief strongMask pointer to a bitvector containing the mask of strong links
      */
-    const std::vector<bool> *strongMask;
+    const std::unique_ptr<std::vector<bool>> strongMask;
 
     /*!
      * \brief weakMask pointer to a bitvector containing the mask of weak links
      */
-    const std::vector<bool> *weakMask;
+    const std::unique_ptr<std::vector<bool>> weakMask;
 
 public:
     /*!
@@ -35,13 +36,13 @@ public:
      * \param strongMask pointer to a bitvector containing the mask of strong links
      * \param weakMask pointer to a bitvector containing the mask of weak links
      */
-    LogLine(unsigned int nodeId, unsigned int lineN, std::vector<bool> *strongMask, std::vector<bool> *weakMask);
+    LogLine(unsigned int nodeId, unsigned int lineN, std::unique_ptr<std::vector<bool>> strongMask, std::unique_ptr<std::vector<bool>> weakMask);
 
     /*!
      * \brief LogLine copy constructor for LogLine, uses vector copy constructor to copy the masks
      * \param oth the line to copy
      */
-    //LogLine(const LogLine &oth);
+    LogLine(const LogLine &oth);
 
     /*!
      * \brief comparator implements less than operator for line number upper_bound search
@@ -66,16 +67,30 @@ public:
     unsigned int getLineN() const;
 
     /*!
-     * \brief getStrongMask strongMask getter
+     * \brief getStrongMask strongMask getter(false if out of bounds)
+     * \param x the bit to fetch
      * \return strongMask
      */
-    const std::vector<bool> *getStrongMask() const;
+    bool getStrongMask(unsigned long x) const;
 
     /*!
-     * \brief getWeakMask weakMask getter
+     * \brief getWeakMask weakMask getter(false if out of bounds)
+     * \param x the bit to fetch
      * \return weakMask
      */
-    const std::vector<bool> *getWeakMask() const;
+    bool getWeakMask(unsigned long x) const;
+
+    /*!
+     * \brief getWeakSize weak mask size getter
+     * \return weak mask size
+     */
+    unsigned long getWeakSize() const;
+
+    /*!
+     * \brief getStrongSize strong mask size getter
+     * \return strong mask size
+     */
+    unsigned long getStrongSize() const;
 };
 
 #endif // LOGLINE_H

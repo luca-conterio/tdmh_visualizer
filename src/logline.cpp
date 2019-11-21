@@ -10,19 +10,30 @@ unsigned int LogLine::getLineN() const
     return lineN;
 }
 
-const std::vector<bool> *LogLine::getStrongMask() const
+bool LogLine::getStrongMask(unsigned long x) const
 {
-    return strongMask;
+    return (x<strongMask->size())?strongMask->at(x):false;
 }
 
-const std::vector<bool> *LogLine::getWeakMask() const
+bool LogLine::getWeakMask(unsigned long x) const
 {
-    return weakMask;
+    return (x<weakMask->size())?weakMask->at(x):false;
 }
 
-LogLine::LogLine(unsigned int nodeId, unsigned int lineN, std::vector<bool> *strongMask, std::vector<bool> *weakMask):nodeId(nodeId),lineN(lineN),strongMask(strongMask),weakMask(weakMask){}
+unsigned long LogLine::getWeakSize() const
+{
+    return weakMask->size();
+}
 
-/*LogLine::LogLine(const LogLine &oth):nodeId(oth.nodeId),lineN(oth.lineN),strongMask(new std::vector<bool>(*oth.strongMask)),weakMask(new std::vector<bool>(*oth.weakMask))
+unsigned long LogLine::getStrongSize() const
+{
+    return strongMask->size();
+}
+
+LogLine::LogLine(unsigned int nodeId, unsigned int lineN, std::unique_ptr<std::vector<bool>>strongMask, std::unique_ptr<std::vector<bool>>weakMask):
+    nodeId(nodeId),lineN(lineN),strongMask(std::move(strongMask)),weakMask(std::move(weakMask)){}
+
+LogLine::LogLine(const LogLine &oth):nodeId(oth.nodeId),lineN(oth.lineN),strongMask(new std::vector<bool>(*oth.strongMask)),weakMask(new std::vector<bool>(*oth.weakMask))
 {
 
-}*/
+}

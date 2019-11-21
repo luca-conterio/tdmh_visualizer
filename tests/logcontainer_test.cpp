@@ -55,4 +55,24 @@ void logcontainerTest::test_multipleLinesAdded()
     QVERIFY(logC.findLine(initSize+2,201).getLineN()==200);
 }
 
+void logcontainerTest::test_maskPreserved()
+{
+    unsigned int initSize =2;
+    LogContainer logC(initSize);
+    std::string str = "01010";
+    std::vector<char> data(str.begin(), str.end());
+    logC.addLine(initSize+2,100,data,data);
+    logC.addLine(initSize+2,200,data,data);
+
+    LogLine lL=logC.findLine(initSize+2,99);
+    for(size_t i=0;i<str.size();i++){
+        QVERIFY(lL.getWeakMask(i)==false);
+    }
+
+    LogLine l2=logC.findLine(initSize+2,100);
+    for(size_t i=0;i<str.size();i++){
+        QVERIFY(l2.getWeakMask(i)==(str[i]=='1'));
+    }
+}
+
 

@@ -2,9 +2,10 @@
 #define MAINWINDOW_H
 
 #include "graphcontainer.h"
+#include "logloader.h"
 #include "logvisual.h"
 #include "tsqueue.h"
-
+#include <memory>
 #include <QMainWindow>
 #include <QToolBar>
 #include <thread>
@@ -22,9 +23,10 @@ private:
     QWidget centralW;
     QToolBar *fileToolbar;
     GraphContainer gCont;
-    std::thread *textThread=nullptr;
-    TSQueue *ts=nullptr;
-    static void pollTextThread(TSQueue *tsq, LogVisual *lv);
+    std::unique_ptr<std::thread> textThread=nullptr;
+    std::shared_ptr<TSQueue> ts=nullptr;
+    std::shared_ptr<LogLoader> lld=nullptr;
+    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, LogVisual *lv);
 public:
     /*!
      * \brief MainWindow Constructor
@@ -36,7 +38,7 @@ public:
      * \brief setQueue sets the queue where the text will be polled from and starts the thread
      * \param tsq the ts queue
      */
-    void setQueue(TSQueue *tsq);
+    void setQueue(const std::shared_ptr<TSQueue>&);
 
     /*!
      * \brief closeEvent extends the inherited method to break the pipe
@@ -45,10 +47,11 @@ public:
     void closeEvent (QCloseEvent *event) override;
 
     /*!
-     * \brief setConfig sets the configuration to be used
+     * \brief setConfig sets the configuration and loader to be used
      * \param c the configuration
+     * \param lld pointer to the loader
      */
-    void setConfig(Configuration c);
+    void setConfig(const Configuration& c,std::shared_ptr<LogLoader> lld);
 
 signals:
 

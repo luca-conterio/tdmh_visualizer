@@ -20,19 +20,19 @@ public:
      * \param logC the log container object
      * \param queue the queue where to push the text lines
      */
-    void load(const std::string& path, Configuration::MODE mode, LogContainer *logC, TSQueue* queue);
+    void load(const std::string& path, Configuration::MODE mode, LogContainer *logC, const std::shared_ptr<TSQueue>& queue);
 
     /*!
      * \brief stop stop stops the reading thread(if not already terminated) at the next iteration
-     * \param force forces to kill the thread
      */
-    void stop(bool force);
+    void stop();
 private:
     bool terminate=false;
-    static void loadBatch(const std::string& path,LogContainer *logC,TSQueue *queue);
-    static void loadStat(const std::string& path,LogContainer *logC,TSQueue *queue);
-    static void loadRT(const std::string& path,LogContainer *logC,TSQueue *queue);
-    std::thread *loaderThread=nullptr;
+    static void loadBatch(const std::string& path,LogContainer *logC,const std::shared_ptr<TSQueue>& queue);
+    static void loadStat(const std::string& path,LogContainer *logC,const std::shared_ptr<TSQueue>& queue);
+    static void loadRT(const std::string& path,LogContainer *logC,const std::shared_ptr<TSQueue>& queue);
+    std::unique_ptr<std::thread> loaderThread=nullptr;
+    std::shared_ptr<TSQueue> queue=nullptr;
 };
 
 #endif // LOGLOADER_H

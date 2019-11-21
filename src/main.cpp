@@ -34,17 +34,17 @@ int main(int argc, char *argv[])
 
     std::cout.flush();
 
-    LogLoader lld;
+    auto lld=std::make_shared<LogLoader>();
     auto * logC=new LogContainer(static_cast<unsigned int>(cfg.getNodeCount()));
-    TSQueue tsq;
+    auto tsq=std::make_shared<TSQueue>();
 
     QApplication app(argc, argv);
 
     auto *mW=new MainWindow();
     mW->show();
     mW->setStyleSheet("QMainWindow {background: 'yellow';}");
-    mW->setQueue(&tsq);
-    mW->setConfig(cfg);
-    lld.load(cfg.getLogPath(),cfg.getMode(),logC,&tsq);
+    mW->setQueue(tsq);
+    mW->setConfig(cfg,lld);
+    lld->load(cfg.getLogPath(),cfg.getMode(),logC,tsq);
     return QApplication::exec();
 }

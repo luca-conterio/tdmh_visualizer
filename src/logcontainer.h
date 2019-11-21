@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <mutex>
+#include <memory>
 /*!
  * \brief The LogContainer class contains the information extracted from the log file so far
  */
@@ -12,7 +13,7 @@ class LogContainer
 private:
     private:
     std::mutex storeMutex;
-    std::vector<std::vector<LogLine>*> store;
+    std::vector<std::unique_ptr<std::vector<LogLine>>> store;
 
 
     /*!
@@ -20,7 +21,7 @@ private:
      * \param mask input mask as a vector of chars
      * \return  pointer to the mask as a vector of bools
      */
-    std::vector<bool> *toBoolVec(std::vector<char> &mask) const;
+    std::unique_ptr<std::vector<bool>> toBoolVec(std::vector<char> &mask) const;
 
 public:
 
@@ -30,10 +31,10 @@ public:
      */
     LogContainer(unsigned int );
 
-    LogContainer(const LogContainer &oth)=delete ;
+    /*LogContainer(const LogContainer &oth)=delete ;
     LogContainer &operator =(const LogContainer&) = delete;
     LogContainer(const LogContainer &&oth)=delete;
-    LogContainer &operator =(const LogContainer&&) = delete;
+    LogContainer &operator =(const LogContainer&&) = delete;*/
     /*!
      * \brief addLine adds a line to the store
      * \param nodeId id of the node the line refers to
@@ -62,8 +63,6 @@ public:
      * \param line line to be processed
      */
     void process(std::string &line);
-
-    ~LogContainer();
 };
 
 #endif // LOGCONTAINER_H
