@@ -8,7 +8,6 @@
 #include <utility>
 void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv)
 {
-    //lv->pushLine(tsq->pop()+"\n");
     bool valid=true;
     const int linePerIter=1000;
     const int sleepTime=100;

@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <vector>
 /*!
  * \brief The Configuration class, used to store configuration variables
  */
@@ -19,6 +20,7 @@ private:
     std::string log_path="log.txt";
     std::string img_path="image.jpg";
     MODE mode=BATCH;
+    std::vector<std::pair<int,int>> nodeList;
 
     /*!
      * \brief pushNode pushes a new node on the nodelist
@@ -26,7 +28,7 @@ private:
      * \param x x position
      * \param y y position
      */
-    void pushNode(int i,int x, int y);
+    void pushNode(size_t i, int x, int y);
 
     void processTuple(const std::string& t);
 
@@ -36,8 +38,6 @@ public:
      * \brief max_nodes default number of nodes
      */
     static const int default_nodes=16;
-
-     Configuration();
 
      /*!
       * \brief loadCfg loads configuration from file, if ptr is null or parameters are missing, defaults are used
@@ -68,6 +68,7 @@ public:
       * \return image log path
       */
      std::string getImgPath() const;
+     std::vector<std::pair<int, int> > getNodeList() const;
 };
 
 #endif // CONFIGURATION_H

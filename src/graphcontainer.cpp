@@ -1,3 +1,4 @@
+#include "graphcircle.h"
 #include "graphcontainer.h"
 
 
@@ -56,8 +57,23 @@ void GraphContainer::configGraph(const Configuration& c)
     QString url = QString::fromStdString(c.getImgPath());
     QPixmap bgImg(url);
 
+
     bgImg=bgImg.scaled(viewport()->contentsRect().size());
     QGraphicsPixmapItem pixItem(bgImg);
     scene->addPixmap(bgImg);
+
+    /*GraphCircle *gc=new GraphCircle();
+    scene->addItem(gc);
+    gc->setPos(0,0);*/
+
+    auto list=c.getNodeList();
+    for(size_t i=0;i<list.size();i++){
+        /*scene->addEllipse(list[i].first-rad, list[i].second-rad, rad*2.0, rad*2.0,
+                    QPen(), QBrush(Qt::red));*/
+
+        circleVect.push_back(std::make_unique<GraphCircle>(i,list[i].first,list[i].second,scene));
+    }
+
+
 }
 

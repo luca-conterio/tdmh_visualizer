@@ -1,7 +1,8 @@
 #include "logcontainer.h"
 #include <iostream>
 #include <algorithm>
-std::unique_ptr<std::vector<bool> > LogContainer::toBoolVec(std::vector<char> &mask) const
+#include <regex>
+std::unique_ptr<std::vector<bool> > LogContainer::toBoolVec(const std::vector<char> &mask) const
 {
     auto out=std::make_unique<std::vector<bool>>(mask.size());
     for(unsigned long i=0;i<out->size();i++){
@@ -17,7 +18,7 @@ LogContainer::LogContainer(unsigned int initSize)
     }
 }
 
-void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, std::vector<char> strong, std::vector<char> weak)
+void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, const std::vector<char> &strong, const std::vector<char> &weak)
 {
     std::lock_guard<std::mutex> lck(storeMutex);
     if(nodeId>=store.size()){
@@ -53,8 +54,80 @@ unsigned int LogContainer::getSize()
     return static_cast<unsigned int> (store.size());
 }
 
-void LogContainer::process(std::string &line)
+void LogContainer::process(unsigned int lineN,const std::string &line)
 {
+
+    //Regex works but is Really Really slow
+    /*bool initWeak=false;
+    std::sregex_iterator declare_begin;
+    auto declare_end = std::sregex_iterator();
+
+    //[U] Topo 000: [0000000000000000][0000000000000000]
+    std::regex weakP(R"(^\[U\] Topo ([0-9][0-9][0-9]): \[([0-9]+)\]\[([0-9]+)\])");
+
+    declare_begin = std::sregex_iterator(line.begin(), line.end(), weakP);
+    if(declare_begin==declare_end){
+        initWeak=true;
+        std::regex strongP(R"(^\[U\] Topo ([0-9][0-9][0-9]): \[([0-9]+)\])");
+        declare_begin = std::sregex_iterator(line.begin(), line.end(), strongP);
+        if(declare_begin==declare_end)return;
+    }
+
+    for (std::sregex_iterator i = declare_begin; i != declare_end; ++i) {
+        std::smatch match = *i;
+        //std::cout << match[1] << " is " << match[2] << " "<<match[3]<<'\n';
+
+        std::string strong=match[2].str();
+        std::string weak;
+        if(initWeak){
+            weak=std::string(strong.size(), '0');
+        }else{
+            weak=match[3].str();
+        }
+        unsigned int index=static_cast<unsigned int>(std::stoi(match[1].str()));
+
+
+        std::vector<char> dataS(strong.begin(),strong.end());
+        std::vector<char> dataW(weak.begin(),weak.end());
+
+        this->addLine(index,lineN,dataS,dataW);
+
+    }*/
+
+    //[U] Topo 000: [0000000000000000][0000000000000000]
+    std::vector <std::string> split;
+    std::stringstream sst(line);
+    std::string intermediate;
+
+    while(getline(sst, intermediate, ' '))
+    {
+        split.push_back(intermediate);
+    }
+    if(split[0]=="[U]" && split[1]=="Topo"){
+        split[2].pop_back();//Remove :
+        try {
+            unsigned int index=static_cast<unsigned int>(std::stoi(split[2]));
+            size_t maskSize= (split[3].size()-4)/2;
+            std::string strong=split[3].substr(1,maskSize);
+            std::string weak=split[3].substr(maskSize+3,maskSize);
+
+            //std::cout<<line<<" "<<lineN<<"\n";
+            /* std::cout<<"Read "<<strong <<"  "<<weak<<" \n";*/
+
+            std::string::iterator it=split[3].begin()+1;
+            std::vector<char> dataS(it,it+(split[3].size()-4)/2);
+            it+=(split[3].size()-4)/2;
+            std::vector<char> dataW(it+2,it+2+(split[3].size()-4)/2);
+
+            /*std::cout<<"Parsed s"<<std::string(dataS.begin(), dataS.end())<<" \n";
+            std::cout<<"Parsed w "<<std::string(dataW.begin(), dataW.end())<<" \n";*/
+
+            this->addLine(index,lineN,dataS,dataW);
+        } catch (std::invalid_argument&) {
+            //Invalid line, ignore
+        }
+
+    }
 
 }
 

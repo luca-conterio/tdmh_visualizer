@@ -2,9 +2,10 @@
 #define GRAPHCONTAINER_H
 
 #include "configuration.h"
+#include "graphcircle.h"
 
 #include <QGraphicsView>
-
+#include <memory>
 
 /*!
  * \brief The GraphContainer class is the main widget of the graph drawing part of the GUI
@@ -16,6 +17,7 @@ class GraphContainer: public QGraphicsView
 private:
     QGraphicsScene * scene;
     int _numScheduledScalings=0;
+    std::vector<std::unique_ptr<GraphCircle>> circleVect;
 public:
     /*!
      * \brief GraphContainer constructs a new View and scene

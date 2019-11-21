@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 
-void LogLoader::load(const std::string& path, Configuration::MODE mode, LogContainer *logC, const std::shared_ptr<TSQueue>& queue)
+void LogLoader::load(const std::string& path, Configuration::MODE mode, const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>& queue)
 {
     //this->gui=gui;
     this->queue=queue;
@@ -28,30 +28,31 @@ void LogLoader::stop()
     loaderThread->join();
 }
 
-void LogLoader::loadBatch(const std::string& path, LogContainer *logC,const std::shared_ptr<TSQueue>& queue)
+void LogLoader::loadBatch(const std::string& path, const std::shared_ptr<LogContainer>& logC,const std::shared_ptr<TSQueue>& queue)
 {
     const std::string& fileName(path);
     std::string delimeter=";";
     std::ifstream file(fileName);
-
+    unsigned int lineN=0;
 
     std::string line;//=new std::string;
     while (getline(file, line)&& !queue->isBroken())
     {
+        lineN++;
         //std::cout<<"Line: "<<*line<<"\n";
         queue->push(line);
-        logC->process(line);
+        logC->process(lineN,line);
     }
     file.close();
     queue->breakQueue();
 }
 
-void LogLoader::loadStat(const std::string& path, LogContainer *logC,const std::shared_ptr<TSQueue>&queue)
+void LogLoader::loadStat(const std::string& path, const std::shared_ptr<LogContainer>&logC,const std::shared_ptr<TSQueue>&queue)
 {
 
 }
 
-void LogLoader::loadRT(const std::string& path, LogContainer *logC,const std::shared_ptr<TSQueue>&queue)
+void LogLoader::loadRT(const std::string& path, const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>&queue)
 {
 
 }

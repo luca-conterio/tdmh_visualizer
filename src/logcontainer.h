@@ -7,6 +7,7 @@
 #include <memory>
 /*!
  * \brief The LogContainer class contains the information extracted from the log file so far
+ * \author Francesco Franzini
  */
 class LogContainer
 {
@@ -21,7 +22,7 @@ private:
      * \param mask input mask as a vector of chars
      * \return  pointer to the mask as a vector of bools
      */
-    std::unique_ptr<std::vector<bool>> toBoolVec(std::vector<char> &mask) const;
+    std::unique_ptr<std::vector<bool>> toBoolVec(const std::vector<char> &mask) const;
 
 public:
 
@@ -42,7 +43,7 @@ public:
      * \param strong strong links mask
      * \param weak weak links mask
      */
-    void addLine(unsigned int nodeId, unsigned int lineN, std::vector<char> strong , std::vector<char> weak);
+    void addLine(unsigned int nodeId, unsigned int lineN, const std::vector<char> &strong , const std::vector<char> &weak);
 
     /*!
      * \brief findLine returns the last line before maxLine(inclusive) referring to a particular node
@@ -62,7 +63,7 @@ public:
      * \brief process processes a line and if useful updates the store
      * \param line line to be processed
      */
-    void process(std::string &line);
+    void process(unsigned int lineN, const std::string &line);
 };
 
 #endif // LOGCONTAINER_H

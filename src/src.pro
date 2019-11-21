@@ -16,6 +16,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += main.cpp \
     configuration.cpp \
+    graphcircle.cpp \
     graphcontainer.cpp \
     linearea.cpp \
     logcontainer.cpp \
@@ -40,6 +41,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     configuration.h \
+    graphcircle.h \
     graphcontainer.h \
     linearea.h \
     logcontainer.h \

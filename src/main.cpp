@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     std::cout.flush();
 
     auto lld=std::make_shared<LogLoader>();
-    auto * logC=new LogContainer(static_cast<unsigned int>(cfg.getNodeCount()));
+    auto logC=std::make_shared<LogContainer>(static_cast<unsigned int>(cfg.getNodeCount()));
     auto tsq=std::make_shared<TSQueue>();
 
     QApplication app(argc, argv);

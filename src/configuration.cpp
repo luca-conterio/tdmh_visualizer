@@ -5,8 +5,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-Configuration::Configuration()
-= default;
 
 void Configuration::loadCfg(char *ptr)
 {   
@@ -95,8 +93,19 @@ Configuration::MODE Configuration::getMode() const
 }
 
 
-void Configuration::pushNode(int i, int x, int y){
+std::vector<std::pair<int, int> > Configuration::getNodeList() const
+{
+    return nodeList;
+}
+
+void Configuration::pushNode(size_t i, int x, int y){
     std::cout <<"Pushing node "<<i<<" "<<x<<" "<<y<<"\n";
+    if(nodeList.size()<=i){
+        for(size_t j=nodeList.size();j<=i;j++){
+            nodeList.emplace_back(0,0);
+        }
+    }
+    nodeList[i]={x,y};
 }
 
 // trim from start (in place)
@@ -130,7 +139,7 @@ void Configuration::processTuple(const std::string& t)
             int nx=std::stoi(triple[1]);
             triple[2].pop_back();
             int ny=std::stoi(triple[2]);
-            pushNode(ni,nx,ny);
+            pushNode(static_cast<size_t>(ni),nx,ny);
             return;
         } catch (std::invalid_argument&) {
             //std::cout <<"Invalid tuple "<<t<<" \n";
