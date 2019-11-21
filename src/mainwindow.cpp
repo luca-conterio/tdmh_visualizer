@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <thread>
 #include <QStatusBar>
+#include <utility>
 void MainWindow::pollTextThread(TSQueue *tsq, LogVisual *lv)
 {
     //lv->pushLine(tsq->pop()+"\n");
@@ -54,5 +55,5 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setConfig(Configuration c)
 {
-    gCont.configGraph(c);
+    gCont.configGraph(std::move(c));
 }

@@ -35,7 +35,7 @@ LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine)
     std::lock_guard<std::mutex> lck(storeMutex);
     if(nodeId>=store.size()){
         std::cout << "Invalid node id "<<nodeId <<"\n";
-        return LogLine(nodeId,0,new std::vector<bool>(), new std::vector<bool>());
+        return {nodeId,0,new std::vector<bool>(), new std::vector<bool>()};
     }
     auto found= std::upper_bound (store[nodeId]->begin(), store[nodeId]->end(), maxLine, LogLine::comparator);
 

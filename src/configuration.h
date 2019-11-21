@@ -28,7 +28,9 @@ private:
      */
     void pushNode(int i,int x, int y);
 
-    void processTuple(std::string t);
+    void processTuple(const std::string& t);
+
+    static inline void trim(std::string &s);
 public:
     /*!
      * \brief max_nodes default number of nodes

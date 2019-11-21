@@ -51,7 +51,7 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
     }
 }
 
-void GraphContainer::configGraph(Configuration c)
+void GraphContainer::configGraph(const Configuration& c)
 {
     QString url = QString::fromStdString(c.getImgPath());
     QPixmap bgImg(url);

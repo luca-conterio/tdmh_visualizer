@@ -41,9 +41,7 @@ public:
      * \brief LogLine copy constructor for LogLine, uses vector copy constructor to copy the masks
      * \param oth the line to copy
      */
-    LogLine(const LogLine &oth);
-
-    virtual ~LogLine();
+    //LogLine(const LogLine &oth);
 
     /*!
      * \brief comparator implements less than operator for line number upper_bound search

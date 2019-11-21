@@ -33,7 +33,7 @@ public:
      * \brief configGraph configures the window with the given settings
      * \param c the Configuration object
      */
-    void configGraph(Configuration c);
+    void configGraph(const Configuration& c);
 
 private slots:
 
