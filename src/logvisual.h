@@ -76,7 +76,16 @@ private:
 
     // QWidget interface
 protected:
+    /*!
+     * \brief mousePressEvent prevents left click from changing cursor position, sending a graph update request instead
+     * \param event the mouse event
+     */
     void mousePressEvent(QMouseEvent *event) override;
+
+    /*!
+     * \brief mouseDoubleClickEvent prevents the left double click from changing cursor position, sending a graph update request instead
+     * \param event the mouse event
+     */
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 

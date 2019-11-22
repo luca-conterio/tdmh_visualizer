@@ -14,10 +14,11 @@ private:
     std::mutex qLock;
     std::condition_variable cV;
     bool broken=false;
+    bool batch=true;
 public:
 
     /*!
-     * \brief pop pops a string from the queue, sets valid to false if the queue was broken and empty. blocks if queue is empty
+     * \brief pop pops a string from the queue, sets valid to false if the queue was broken or empty. does not block if queue is empty
      * \param valid if the read string is meaningful
      * \return the read string
      */
@@ -25,12 +26,16 @@ public:
     {
         std::unique_lock<std::mutex> lck(qLock);
 
-        while(queue.empty()){
+        /*while(queue.empty()){
             if(broken){
                 valid=false;
                 return "";
             }
             cV.wait(lck);
+        }*/
+        if(queue.empty()){
+            valid=false;
+            return "";
         }
         std::string el=queue.front();
         queue.pop();
@@ -63,6 +68,21 @@ public:
      */
     void breakQueue(){
         this->broken=true;
+    }
+
+    /*!
+     * \brief toRT switches the batch flag off to signal that big batches of lines will not be loaded any more
+     */
+    void toRT(){
+        this->batch=false;
+    }
+
+    /*!
+     * \brief isBatch checks if the batch flag is set
+     * \return  the batch flag
+     */
+    bool isBatch(){
+        return this->batch;
     }
 };
 

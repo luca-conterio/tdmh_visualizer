@@ -47,11 +47,7 @@ void LogVisual::makeReady()
 
 void LogVisual::pushLine(const QString& line)
 {
-
-    //QTextCursor cur=this->textCursor();
-    //this->moveCursor(QTextCursor::End);
     this->insertPlainText (line);
-    //this->setTextCursor(cur);
 }
 
 void LogVisual::mousePressEvent(QMouseEvent *event)
@@ -77,41 +73,8 @@ void LogVisual::mousePressEvent(QMouseEvent *event)
         //if correct line
         if (block.isVisible() && bottom >= event->y() && top <=event->y()) {
             emit this->cursorChanged(static_cast<unsigned int>(blockNumber));
-
-            //HighLight
-
-            //First revert last
-            QTextCharFormat fmt=this->currentCharFormat();
-            int deltaN=((textCursor().blockNumber()-lastBlockNumber>0)?
-                        textCursor().blockNumber()-lastBlockNumber:lastBlockNumber-textCursor().blockNumber())  +1;
-            QTextCursor::MoveOperation op=(textCursor().blockNumber()-lastBlockNumber>0)?
-                        QTextCursor::Up
-                      :
-                        QTextCursor::Down;
-
-            QTextCursor c=textCursor();
-            c.movePosition(op, QTextCursor::MoveAnchor,deltaN);
-            c.select(QTextCursor::LineUnderCursor);
-            c.setCharFormat(fmt);
-
-
-            //Then change current
-
-            deltaN=((textCursor().blockNumber()-blockNumber>0)?
-                        textCursor().blockNumber()-blockNumber:blockNumber-textCursor().blockNumber())  +1;
-            op=(textCursor().blockNumber()-blockNumber>0)?
-                        QTextCursor::Up
-                      :
-                        QTextCursor::Down;
-
-            c=textCursor();
-            c.movePosition(op, QTextCursor::MoveAnchor,deltaN);
-            c.select(QTextCursor::LineUnderCursor);
-            fmt = c.charFormat();
-            fmt.setBackground(Qt::red);
-
-            c.setCharFormat(fmt);
-            lastBlockNumber=blockNumber;
+            this->lastBlockNumber=blockNumber;
+            this->update();
             return;
         }
 
@@ -203,7 +166,11 @@ void LogVisual::lineNumberAreaPaintEvent(QPaintEvent *event)
         //if visible after the beginning
         if (block.isVisible() && bottom >= event->rect().top()) {
             QString number = QString::number(blockNumber);
-            painter.setPen(Qt::black);
+            if(blockNumber!=lastBlockNumber){
+                painter.setPen(Qt::black);
+            }else{
+                painter.setPen(Qt::red);
+            }
 
             painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
                              Qt::AlignRight, number);

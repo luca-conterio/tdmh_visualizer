@@ -26,7 +26,7 @@ private:
     std::unique_ptr<std::thread> textThread=nullptr;
     std::shared_ptr<TSQueue> ts=nullptr;
     std::shared_ptr<LogLoader> lld=nullptr;
-    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, LogVisual *lv);
+    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, LogVisual *lv, MainWindow *parent);
 public:
     /*!
      * \brief MainWindow Constructor
@@ -53,6 +53,12 @@ public:
      * \param lld pointer to the loader
      */
     void setConfig(const Configuration& c, const std::shared_ptr<LogContainer>& gC, std::shared_ptr<LogLoader> lld);
+
+    /*!
+     * \brief showStatusMessage shows a message in the status bar
+     * \param str message to be sent
+     */
+    void showStatusMessage(QString str);
 
 signals:
 

@@ -8,17 +8,55 @@
 #include <utility>
 #include <QWidget>
 #include <QSplitter>
-void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv)
+void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv,MainWindow* parent)
 {
-    bool valid=true;
-    const int linePerIter=700;
+    /*bool valid=true;
+    const int linePerIter=600;
     const int sleepTime=100;
     while(valid){
         for(int i=0;i<linePerIter &&valid;i++){
             emit lv->lineAdded(QString::fromStdString(tsq->pop(valid)+"\n"));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+    }*/
+
+    parent->showStatusMessage("Reading in batchmode");
+    bool valid=true;
+    const int linePerIter=10000;
+    const int sleepTime=100;
+    std::string buf;
+    QString str("");
+    while(valid&&tsq->isBatch()){
+        for(int i=0;i<linePerIter;i++){
+            buf=tsq->pop(valid);
+            if(!valid){
+                if(!tsq->isBroken()){
+                    valid=true;
+                }
+                break;
+            }
+            str.append(QString::fromStdString(buf+"\n"));
+        }
+        emit lv->lineAdded(str);
+        str.clear();
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
     }
+    parent->showStatusMessage("Reading in realtime mode");
+    valid=true;
+    while(valid){
+        for(int i=0;i<linePerIter &&valid;i++){
+            buf=tsq->pop(valid);
+            if(!valid){
+                if(!tsq->isBroken()){
+                    valid=true;
+                }
+                break;
+            }
+            emit lv->lineAdded(QString::fromStdString(buf+"\n"));
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+    }
+    parent->showStatusMessage("Done parsing input");
 
 }
 
@@ -42,14 +80,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     fileToolbar = addToolBar(tr("File"));
     //fileToolbar.addAction(newAct);
-    //statusBar()->showMessage(tr("Ready"));
+    statusBar()->showMessage(tr("Ready"));
 }
 
 void MainWindow::setQueue(const std::shared_ptr<TSQueue>& tsq)
 {
     if(textThread!=nullptr)return;
     this->ts=tsq;
-    textThread=std::make_unique<std::thread>(pollTextThread,tsq,lv);
+    textThread=std::make_unique<std::thread>(pollTextThread,tsq,lv,this);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -67,4 +105,9 @@ void MainWindow::setConfig(const Configuration& c, const std::shared_ptr<LogCont
     this->lld=std::move(lld);
     connect(lv, &LogVisual::cursorChanged, gCont, &GraphContainer::updateGraph);
     lv->makeReady();
+}
+
+void MainWindow::showStatusMessage(QString str)
+{
+    statusBar()->showMessage(str);
 }

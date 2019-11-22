@@ -26,7 +26,7 @@ SOURCES += main.cpp \
     mainwindow.cpp
 
 
-RESOURCES += qml.qrc
+#RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
