@@ -3,7 +3,7 @@
 
 #include "configuration.h"
 #include "graphcircle.h"
-
+#include "logcontainer.h"
 #include <QGraphicsView>
 #include <memory>
 
@@ -17,7 +17,12 @@ class GraphContainer: public QGraphicsView
 private:
     QGraphicsScene * scene;
     int _numScheduledScalings=0;
-    std::vector<std::unique_ptr<GraphCircle>> circleVect;
+    std::vector<GraphCircle> circleVect;
+    std::shared_ptr<LogContainer> lC=nullptr;
+    std::vector<QGraphicsLineItem*> lines;
+    QPen weakPen;
+    QPen strongPen;
+
 public:
     /*!
      * \brief GraphContainer constructs a new View and scene
@@ -34,15 +39,19 @@ public:
     /*!
      * \brief configGraph configures the window with the given settings
      * \param c the Configuration object
+     * \param lC the log container pointer
      */
-    void configGraph(const Configuration& c);
+    void configGraph(const Configuration& c, const std::shared_ptr<LogContainer>& lC);
 
-private slots:
 
-signals:
 
 public slots:
-
+    /*!
+     * \brief updateGraph updates the graph to new LineN
+     * \param lineN
+     */
+    void updateGraph(unsigned int lineN);
+signals:
 };
 
 #endif // GRAPHCONTAINER_H

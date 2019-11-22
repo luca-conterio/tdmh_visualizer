@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QTextBlock>
+#include <QTextCursor>
 
 LogVisual::LogVisual(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -14,10 +15,13 @@ LogVisual::LogVisual(QWidget *parent) : QPlainTextEdit(parent)
     connect(this, &LogVisual::cursorPositionChanged, this, &LogVisual::highlightCurrentLine);
     connect(this, &LogVisual::lineAdded, this, &LogVisual::pushLine);
 
+
+
     updateLineNumberAreaWidth(0);
-    highlightCurrentLine();
+    //highlightCurrentLine();
     this->setReadOnly(true);
 }
+
 
 int LogVisual::lineNumberAreaWidth()
 {
@@ -34,8 +38,14 @@ int LogVisual::lineNumberAreaWidth()
     return space;
 }
 
+void LogVisual::makeReady()
+{
+    ready=true;
+}
+
 void LogVisual::pushLine(const QString& line)
 {
+    disableUpdate=true;
     this->insertPlainText(line);
 }
 
@@ -65,19 +75,32 @@ void LogVisual::resizeEvent(QResizeEvent *e)
 
 void LogVisual::highlightCurrentLine()
 {
-    QList<QTextEdit::ExtraSelection> extraSelections;
-    //if (!isReadOnly()) {
-        QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::cyan);
-        selection.format.setBackground(lineColor);
-        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = textCursor();
-        selection.cursor.clearSelection();
-        extraSelections.append(selection);
-    //}
+    //HighLight
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextEdit::ExtraSelection selection;
+
+    QColor lineColor = QColor(Qt::cyan);
+    selection.format.setBackground(lineColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = textCursor();
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
 
     setExtraSelections(extraSelections);
+
+
+    QTextCursor cursor = this->textCursor();
+    unsigned int lineN=static_cast<unsigned int>(cursor.blockNumber())+1;
+    //GraphUpdate
+    if(disableUpdate){
+        disableUpdate=false;
+        return;
+    }
+    if(ready){
+        //((MainWindow *)this->parent())->updateGraph(lineN);
+        emit this->cursorChanged(lineN);
+    }
 }
 
 void LogVisual::lineNumberAreaPaintEvent(QPaintEvent *event)

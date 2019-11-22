@@ -19,10 +19,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    LogVisual lv;
+    LogVisual *lv=nullptr;
     QWidget centralW;
-    QToolBar *fileToolbar;
-    GraphContainer gCont;
+    QToolBar *fileToolbar=nullptr;
+    GraphContainer *gCont=nullptr;
     std::unique_ptr<std::thread> textThread=nullptr;
     std::shared_ptr<TSQueue> ts=nullptr;
     std::shared_ptr<LogLoader> lld=nullptr;
@@ -49,9 +49,10 @@ public:
     /*!
      * \brief setConfig sets the configuration and loader to be used
      * \param c the configuration
+     * \param gC the GraphContainer pointer
      * \param lld pointer to the loader
      */
-    void setConfig(const Configuration& c,std::shared_ptr<LogLoader> lld);
+    void setConfig(const Configuration& c, const std::shared_ptr<LogContainer>& gC, std::shared_ptr<LogLoader> lld);
 
 signals:
 

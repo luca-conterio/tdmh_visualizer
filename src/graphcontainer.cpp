@@ -6,12 +6,25 @@
 #include <QWheelEvent>
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
+
+#include <iostream>
 GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent)
 {
     scene=new QGraphicsScene(this);
     scene->addText("Hello, world!");
     this->setScene(scene);
     this->setStyleSheet("QGraphicsView {background: 'green';}");
+    weakPen.setStyle(Qt::DashDotLine);
+    weakPen.setWidth(2);
+    weakPen.setBrush(Qt::green);
+    weakPen.setCapStyle(Qt::RoundCap);
+    weakPen.setJoinStyle(Qt::RoundJoin);
+
+    strongPen.setStyle(Qt::SolidLine);
+    strongPen.setWidth(3);
+    strongPen.setBrush(Qt::darkBlue);
+    strongPen.setCapStyle(Qt::RoundCap);
+    strongPen.setJoinStyle(Qt::RoundJoin);
 }
 
 
@@ -52,8 +65,9 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
     }
 }
 
-void GraphContainer::configGraph(const Configuration& c)
+void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<LogContainer>& lC)
 {
+    this->lC=lC;
     QString url = QString::fromStdString(c.getImgPath());
     QPixmap bgImg(url);
 
@@ -70,10 +84,38 @@ void GraphContainer::configGraph(const Configuration& c)
     for(size_t i=0;i<list.size();i++){
         /*scene->addEllipse(list[i].first-rad, list[i].second-rad, rad*2.0, rad*2.0,
                     QPen(), QBrush(Qt::red));*/
-
-        circleVect.push_back(std::make_unique<GraphCircle>(i,list[i].first,list[i].second,scene));
+        circleVect.emplace_back(i,list[i].first,list[i].second,scene);
     }
-
+    std::cout<<"Configured graph with "<<circleVect.size()<<" elements\n";
 
 }
+
+void GraphContainer::updateGraph(unsigned int lineN)
+{
+    for(auto line:lines){
+        scene->removeItem(line);
+    }
+    lines.clear();
+
+    QPen pen;
+    for(auto g1:circleVect){
+        LogLine l=lC->findLine(g1.getI(),lineN);
+        for(auto g2:circleVect){
+            if(l.getStrongMask(g2.getI())){
+                pen=strongPen;
+            }else if(l.getWeakMask(g2.getI())){
+                pen=weakPen;
+            }else{
+                continue;
+            }
+            auto* line=new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
+            line->setPen(pen);
+            this->scene->addItem(line);
+            lines.push_back(line);
+
+        }
+
+    }
+}
+
 

@@ -1,6 +1,7 @@
 #ifndef LOGVISUAL_H
 #define LOGVISUAL_H
 
+
 #include <QPlainTextEdit>
 #include <QWidget>
 
@@ -30,7 +31,10 @@ public:
      */
     int lineNumberAreaWidth();
 
-
+    /*!
+     * \brief makeReady enables line change notification
+     */
+    void makeReady();
 
 protected:
     /*!
@@ -56,8 +60,12 @@ signals:
      */
     void lineAdded(QString line);
 
+    void cursorChanged(unsigned int lineN);
+
 private:
     QWidget *lineNumberArea;
+    bool ready=false;
+    bool disableUpdate=true;
 };
 
 #endif // LOGVISUAL_H

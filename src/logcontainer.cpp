@@ -106,7 +106,7 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
     if(split[0]=="[U]" && split[1]=="Topo"){
         split[2].pop_back();//Remove :
         try {
-            unsigned int index=static_cast<unsigned int>(std::stoi(split[2]));
+            auto index=static_cast<unsigned int>(std::stoi(split[2]));
             size_t maskSize= (split[3].size()-4)/2;
             std::string strong=split[3].substr(1,maskSize);
             std::string weak=split[3].substr(maskSize+3,maskSize);
