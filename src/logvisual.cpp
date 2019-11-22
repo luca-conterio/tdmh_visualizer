@@ -21,6 +21,7 @@ LogVisual::LogVisual(QWidget *parent) : QPlainTextEdit(parent)
     updateLineNumberAreaWidth(0);
     //highlightCurrentLine();
     this->setReadOnly(true);
+    disableUpdate=true;
 }
 
 
@@ -46,9 +47,88 @@ void LogVisual::makeReady()
 
 void LogVisual::pushLine(const QString& line)
 {
-    disableUpdate=true;
-    this->insertPlainText (line);
 
+    //QTextCursor cur=this->textCursor();
+    //this->moveCursor(QTextCursor::End);
+    this->insertPlainText (line);
+    //this->setTextCursor(cur);
+}
+
+void LogVisual::mousePressEvent(QMouseEvent *event)
+{
+    //if(!disableUpdate)QPlainTextEdit::mousePressEvent(event);
+
+    if(event->button()!=Qt::LeftButton){
+        QPlainTextEdit::mousePressEvent(event);
+        return;
+    }
+
+    QTextBlock block = firstVisibleBlock();
+
+    int blockNumber = block.blockNumber()+1;
+
+    //Top and bottom of a block(might be multiline in gui)
+    int top = static_cast<int>( blockBoundingGeometry(block).translated(contentOffset()).top()  );
+    int bottom = top +static_cast<int>( blockBoundingRect(block).height() );
+
+    //while valid and visible at least partially before end
+    while (block.isValid() && top <= viewport()->rect().bottom()) {
+
+        //if correct line
+        if (block.isVisible() && bottom >= event->y() && top <=event->y()) {
+            emit this->cursorChanged(static_cast<unsigned int>(blockNumber));
+
+            //HighLight
+
+            //First revert last
+            QTextCharFormat fmt=this->currentCharFormat();
+            int deltaN=((textCursor().blockNumber()-lastBlockNumber>0)?
+                        textCursor().blockNumber()-lastBlockNumber:lastBlockNumber-textCursor().blockNumber())  +1;
+            QTextCursor::MoveOperation op=(textCursor().blockNumber()-lastBlockNumber>0)?
+                        QTextCursor::Up
+                      :
+                        QTextCursor::Down;
+
+            QTextCursor c=textCursor();
+            c.movePosition(op, QTextCursor::MoveAnchor,deltaN);
+            c.select(QTextCursor::LineUnderCursor);
+            c.setCharFormat(fmt);
+
+
+            //Then change current
+
+            deltaN=((textCursor().blockNumber()-blockNumber>0)?
+                        textCursor().blockNumber()-blockNumber:blockNumber-textCursor().blockNumber())  +1;
+            op=(textCursor().blockNumber()-blockNumber>0)?
+                        QTextCursor::Up
+                      :
+                        QTextCursor::Down;
+
+            c=textCursor();
+            c.movePosition(op, QTextCursor::MoveAnchor,deltaN);
+            c.select(QTextCursor::LineUnderCursor);
+            fmt = c.charFormat();
+            fmt.setBackground(Qt::red);
+
+            c.setCharFormat(fmt);
+            lastBlockNumber=blockNumber;
+            return;
+        }
+
+        block = block.next();
+        top = bottom;
+        bottom = top + static_cast<int>( blockBoundingRect(block).height() );
+        ++blockNumber;
+    }
+}
+
+void LogVisual::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(event->button()==Qt::LeftButton){
+        this->mousePressEvent(event);
+    }else{
+        QPlainTextEdit::mouseDoubleClickEvent(event);
+    }
 }
 
 void LogVisual::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -92,17 +172,16 @@ void LogVisual::highlightCurrentLine()
     setExtraSelections(extraSelections);
 
 
-    QTextCursor cursor = this->textCursor();
-    unsigned int lineN=static_cast<unsigned int>(cursor.blockNumber())+1;
+    //QTextCursor cursor = this->textCursor();
+    //unsigned int lineN=static_cast<unsigned int>(cursor.blockNumber())+1;
     //GraphUpdate
-    if(disableUpdate){
-        disableUpdate=false;
+    /*if(disableUpdate){
         return;
     }
     if(ready){
         //((MainWindow *)this->parent())->updateGraph(lineN);
         emit this->cursorChanged(lineN);
-    }
+    }*/
 }
 
 void LogVisual::lineNumberAreaPaintEvent(QPaintEvent *event)

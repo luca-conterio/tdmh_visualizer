@@ -93,6 +93,7 @@ void GraphContainer::updateGraph(unsigned int lineN)
 {
     for(auto line:lines){
         scene->removeItem(line);
+        delete line;
     }
     lines.clear();
 

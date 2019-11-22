@@ -11,7 +11,7 @@
 void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv)
 {
     bool valid=true;
-    const int linePerIter=800;
+    const int linePerIter=700;
     const int sleepTime=100;
     while(valid){
         for(int i=0;i<linePerIter &&valid;i++){

@@ -42,6 +42,9 @@ protected:
      */
     void resizeEvent(QResizeEvent *event) override;
 
+
+
+
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -69,6 +72,12 @@ private:
     QWidget *lineNumberArea;
     bool ready=false;
     bool disableUpdate=true;
+    int lastBlockNumber=0;
+
+    // QWidget interface
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
 #endif // LOGVISUAL_H
