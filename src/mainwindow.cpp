@@ -7,10 +7,11 @@
 #include <QStatusBar>
 #include <utility>
 #include <QWidget>
+#include <QSplitter>
 void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv)
 {
     bool valid=true;
-    const int linePerIter=1000;
+    const int linePerIter=800;
     const int sleepTime=100;
     while(valid){
         for(int i=0;i<linePerIter &&valid;i++){
@@ -28,12 +29,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     const double screenPercentage=0.7;
     resize(QDesktopWidget().availableGeometry(this).size() * screenPercentage);
 
-    auto *layout = new QHBoxLayout;
+    auto *layout2 = new QHBoxLayout;
+    auto * layout=new QSplitter(Qt::Horizontal);
+
     lv=new LogVisual(this);
     layout->addWidget(lv);
     layout->addWidget(gCont);
-    centralW.setLayout(layout);
-
+    layout->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    layout2->addWidget(layout);
+    centralW.setLayout(layout2);
     this->setCentralWidget(&centralW);
 
     fileToolbar = addToolBar(tr("File"));

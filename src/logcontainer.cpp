@@ -106,20 +106,34 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
     if(split[0]=="[U]" && split[1]=="Topo"){
         split[2].pop_back();//Remove :
         try {
-            auto index=static_cast<unsigned int>(std::stoi(split[2]));
-            size_t maskSize= (split[3].size()-4)/2;
-            std::string strong=split[3].substr(1,maskSize);
-            std::string weak=split[3].substr(maskSize+3,maskSize);
-
             //std::cout<<line<<" "<<lineN<<"\n";
-            /* std::cout<<"Read "<<strong <<"  "<<weak<<" \n";*/
+            auto index=static_cast<unsigned int>(std::stoi(split[2]));
+            unsigned long umaskSize;
+            bool weakPresent= (std::count(split[3].begin(), split[3].end(), '[')>1);
 
             std::string::iterator it=split[3].begin()+1;
-            std::vector<char> dataS(it,it+(split[3].size()-4)/2);
-            it+=(split[3].size()-4)/2;
-            std::vector<char> dataW(it+2,it+2+(split[3].size()-4)/2);
+            if(weakPresent){
+                //Weak present
+                umaskSize = (split[3].size()-4)/2;
+            }else{
+                umaskSize = split[3].size()-3;
+            }
+            auto maskSize=static_cast<long>(umaskSize);
+            std::vector<char> dataS(it,it+maskSize);
+            //std::string strong=split[3].substr(1,maskSize);
 
-            /*std::cout<<"Parsed s"<<std::string(dataS.begin(), dataS.end())<<" \n";
+
+
+            //std::string weak=split[3].substr(maskSize+3,maskSize);
+            std::vector<char> dataW;
+            if(weakPresent){
+                it+=maskSize;
+                dataW=std::vector<char>(it+2,it+2+maskSize);
+            }else{
+                dataW=std::vector<char>(dataS.size(),'0');
+            }
+
+            /*std::cout<<"Parsed s "<<std::string(dataS.begin(), dataS.end())<<" \n";
             std::cout<<"Parsed w "<<std::string(dataW.begin(), dataW.end())<<" \n";*/
 
             this->addLine(index,lineN,dataS,dataW);

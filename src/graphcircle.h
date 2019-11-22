@@ -34,8 +34,22 @@ public:
      */
     void setPos(int x,int y);
 
+    /*!
+     * \brief getX x getter
+     * \return x
+     */
     int getX() const;
+
+    /*!
+     * \brief getY y getter
+     * \return y
+     */
     int getY() const;
+
+    /*!
+     * \brief getI index getter
+     * \return node index
+     */
     unsigned int getI() const;
 };
 

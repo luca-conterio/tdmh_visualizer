@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <iostream>
 
 LogVisual::LogVisual(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -46,7 +47,8 @@ void LogVisual::makeReady()
 void LogVisual::pushLine(const QString& line)
 {
     disableUpdate=true;
-    this->insertPlainText(line);
+    this->insertPlainText (line);
+
 }
 
 void LogVisual::updateLineNumberAreaWidth(int /* newBlockCount */)

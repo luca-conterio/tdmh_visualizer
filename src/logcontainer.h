@@ -61,6 +61,7 @@ public:
 
     /*!
      * \brief process processes a line and if useful updates the store
+     * \param lineN line number
      * \param line line to be processed
      */
     void process(unsigned int lineN, const std::string &line);

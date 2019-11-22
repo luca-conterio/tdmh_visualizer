@@ -11,9 +11,10 @@
 GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent)
 {
     scene=new QGraphicsScene(this);
-    scene->addText("Hello, world!");
     this->setScene(scene);
-    this->setStyleSheet("QGraphicsView {background: 'green';}");
+    this->setBackgroundBrush(Qt::darkGray);
+
+
     weakPen.setStyle(Qt::DashDotLine);
     weakPen.setWidth(2);
     weakPen.setBrush(Qt::green);
@@ -72,13 +73,11 @@ void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<L
     QPixmap bgImg(url);
 
 
-    bgImg=bgImg.scaled(viewport()->contentsRect().size());
+    //bgImg=bgImg.scaled(viewport()->contentsRect().size());
     QGraphicsPixmapItem pixItem(bgImg);
     scene->addPixmap(bgImg);
 
-    /*GraphCircle *gc=new GraphCircle();
-    scene->addItem(gc);
-    gc->setPos(0,0);*/
+    scene->setSceneRect(bgImg.rect());
 
     auto list=c.getNodeList();
     for(size_t i=0;i<list.size();i++){
@@ -108,6 +107,7 @@ void GraphContainer::updateGraph(unsigned int lineN)
             }else{
                 continue;
             }
+
             auto* line=new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
             line->setPen(pen);
             this->scene->addItem(line);

@@ -4,7 +4,6 @@
 
 #include <QPlainTextEdit>
 #include <QWidget>
-
 /*!
  * \brief The LogVisual class is a Widget that contains the text and adds line numbers
  */
@@ -58,8 +57,12 @@ signals:
      * \brief lineAdded signal to be raised to insert a new line
      * \param line the line to add
      */
-    void lineAdded(QString line);
+    void lineAdded(const QString &line);
 
+    /*!
+     * \brief cursorChanged signal emitted when the cursor has changed not in response to a new line
+     * \param lineN line number of the selected line
+     */
     void cursorChanged(unsigned int lineN);
 
 private:

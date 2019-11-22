@@ -68,6 +68,11 @@ public:
       * \return image log path
       */
      std::string getImgPath() const;
+
+     /*!
+      * \brief getNodeList nodelist getter
+      * \return the list of pairs (x,y) of each note of index i
+      */
      std::vector<std::pair<int, int> > getNodeList() const;
 };
 
