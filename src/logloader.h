@@ -9,6 +9,7 @@
 #include <thread>
 /*!
  * \brief The LogLoader is used to load data from the logfile
+ * \author Francesco Franzini
  */
 class LogLoader
 {

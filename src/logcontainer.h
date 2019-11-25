@@ -1,7 +1,6 @@
 #ifndef LOGCONTAINER_H
 #define LOGCONTAINER_H
 #include "logline.h"
-
 #include <vector>
 #include <mutex>
 #include <memory>

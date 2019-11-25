@@ -1,7 +1,6 @@
 #include "configuration.h"
 #include "logcontainer.h"
 #include "logloader.h"
-#include "logvisual.h"
 
 #include <iostream>
 

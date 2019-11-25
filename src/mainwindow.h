@@ -2,31 +2,34 @@
 #define MAINWINDOW_H
 
 #include "graphcontainer.h"
+#include "loglistview.h"
 #include "logloader.h"
-#include "logvisual.h"
+#include "stringlistmodel.h"
 #include "tsqueue.h"
 #include <memory>
 #include <QMainWindow>
-#include <QToolBar>
 #include <thread>
+#include <QListWidget>
 
-
+Q_DECLARE_METATYPE( std::vector<std::string*> )
 /*!
- * \brief The MainWindow class is the main frame of the application
+ * \brief The MainWindow class is the main window of the log viewer
+ * \author Francesco Franzini
  */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
-    LogVisual *lv=nullptr;
     QWidget centralW;
     QToolBar *fileToolbar=nullptr;
     GraphContainer *gCont=nullptr;
+    LogListView *listW=nullptr;
+    StringListModel *model=nullptr;
     std::unique_ptr<std::thread> textThread=nullptr;
     std::shared_ptr<TSQueue> ts=nullptr;
     std::shared_ptr<LogLoader> lld=nullptr;
-    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, LogVisual *lv, MainWindow *parent);
+    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, MainWindow *parent);
 public:
     /*!
      * \brief MainWindow Constructor
@@ -58,11 +61,22 @@ public:
      * \brief showStatusMessage shows a message in the status bar
      * \param str message to be sent
      */
-    void showStatusMessage(QString str);
+    void showStatusMessage(const QString& str);
 
 signals:
 
+    /*!
+     * \brief newLineAvailable signal to be emitted when a new vector of lines is ready
+     * \param str the vector of lines
+     */
+    void newLineAvailable(std::vector<std::string*> str);
 public slots:
+
+    /*!
+     * \brief selectionChanged catches selectionChanged signal from the view and updates the graph
+     * \param selection current selection
+     */
+    void selectionChanged(const QItemSelection& selection);
 };
 
 #endif // MAINWINDOW_H

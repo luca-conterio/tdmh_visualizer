@@ -5,12 +5,13 @@
 #include <condition_variable>
 #include <iostream>
 /*!
- * \brief The TSQueue class a ts queue implementation
+ * \brief The TSQueue class a ts queue implementation that can be broken to inhibit push
+ * \author Francesco Franzini
  */
 class TSQueue
 {
 private:
-    std::queue<std::string> queue;
+    std::queue<std::string*> queue;
     std::mutex qLock;
     std::condition_variable cV;
     bool broken=false;
@@ -22,7 +23,7 @@ public:
      * \param valid if the read string is meaningful
      * \return the read string
      */
-    std::string pop(bool &valid)
+    std::string * pop(bool &valid)
     {
         std::unique_lock<std::mutex> lck(qLock);
 
@@ -35,9 +36,9 @@ public:
         }*/
         if(queue.empty()){
             valid=false;
-            return "";
+            return new std::string("");
         }
-        std::string el=queue.front();
+        std::string* el=queue.front();
         queue.pop();
         valid=true;
         return el;
@@ -47,7 +48,7 @@ public:
      * \brief push if the queue is not broken pushes a string into the queue and notifies a waiting thread
      * \param el the string to be pushed
      */
-    void push(const std::string& el)
+    void push(std::string* el)
     {
         if(broken)return;
         std::unique_lock<std::mutex> lck(qLock);

@@ -1,4 +1,4 @@
-#include "logvisual.h"
+#include "linearea.h"
 #include "mainwindow.h"
 
 #include <QDesktopWidget>
@@ -8,24 +8,17 @@
 #include <utility>
 #include <QWidget>
 #include <QSplitter>
-void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *lv,MainWindow* parent)
-{
-    /*bool valid=true;
-    const int linePerIter=600;
-    const int sleepTime=100;
-    while(valid){
-        for(int i=0;i<linePerIter &&valid;i++){
-            emit lv->lineAdded(QString::fromStdString(tsq->pop(valid)+"\n"));
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-    }*/
+#include <QStringListModel>
+#include <QCoreApplication>
 
+void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* parent)
+{
     parent->showStatusMessage("Reading in batchmode");
     bool valid=true;
     const int linePerIter=10000;
     const int sleepTime=100;
-    std::string buf;
-    QString str("");
+    std::string *buf;
+    std::vector<std::string*> str;
     while(valid&&tsq->isBatch()){
         for(int i=0;i<linePerIter;i++){
             buf=tsq->pop(valid);
@@ -35,25 +28,26 @@ void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq, LogVisual *
                 }
                 break;
             }
-            str.append(QString::fromStdString(buf+"\n"));
+            str.push_back(buf);
         }
-        emit lv->lineAdded(str);
+        emit parent->newLineAvailable(str);
         str.clear();
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
     }
     parent->showStatusMessage("Reading in realtime mode");
+
     valid=true;
     while(valid){
-        for(int i=0;i<linePerIter &&valid;i++){
-            buf=tsq->pop(valid);
-            if(!valid){
-                if(!tsq->isBroken()){
-                    valid=true;
-                }
-                break;
+        buf=tsq->pop(valid);
+        if(!valid){
+            if(!tsq->isBroken()){
+                valid=true;
             }
-            emit lv->lineAdded(QString::fromStdString(buf+"\n"));
+            break;
         }
+        str.push_back(buf);
+        emit parent->newLineAvailable(str);
+        str.clear();
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
     }
     parent->showStatusMessage("Done parsing input");
@@ -67,15 +61,29 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     const double screenPercentage=0.7;
     resize(QDesktopWidget().availableGeometry(this).size() * screenPercentage);
 
-    auto *layout2 = new QHBoxLayout;
-    auto * layout=new QSplitter(Qt::Horizontal);
+    auto *mainWindowLayout = new QHBoxLayout;
+    auto * splitter=new QSplitter(Qt::Horizontal);
 
-    lv=new LogVisual(this);
-    layout->addWidget(lv);
-    layout->addWidget(gCont);
-    layout->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    layout2->addWidget(layout);
-    centralW.setLayout(layout2);
+    //Init view
+    listW=new LogListView(this);
+    listW->setUniformItemSizes(true);
+
+    //Init model and link to view
+    model=new StringListModel(listW);
+    listW->setModel(model);
+    connect(listW->selectionModel(),
+          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+          this, SLOT(selectionChanged(QItemSelection)));
+    connect(model, &StringListModel::fetched, listW,&LogListView::updateLineNumberAreaWidth);
+
+    //Add to a splitter left container and right graph container
+    splitter->addWidget(listW);
+    splitter->addWidget(gCont);
+    splitter->setSizes(QList<int>({INT_MAX, INT_MAX}));
+
+    //Set splitter as main widget
+    mainWindowLayout->addWidget(splitter);
+    centralW.setLayout(mainWindowLayout);
     this->setCentralWidget(&centralW);
 
     fileToolbar = addToolBar(tr("File"));
@@ -87,7 +95,7 @@ void MainWindow::setQueue(const std::shared_ptr<TSQueue>& tsq)
 {
     if(textThread!=nullptr)return;
     this->ts=tsq;
-    textThread=std::make_unique<std::thread>(pollTextThread,tsq,lv,this);
+    textThread=std::make_unique<std::thread>(pollTextThread,tsq,this);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -103,11 +111,18 @@ void MainWindow::setConfig(const Configuration& c, const std::shared_ptr<LogCont
 
     gCont->configGraph(c,gC);
     this->lld=std::move(lld);
-    connect(lv, &LogVisual::cursorChanged, gCont, &GraphContainer::updateGraph);
-    lv->makeReady();
+    qRegisterMetaType<std::vector<std::string*>>("std::vector<std::string*>");
+    connect(this, &MainWindow::newLineAvailable, model, &StringListModel::addString);
 }
 
-void MainWindow::showStatusMessage(QString str)
+void MainWindow::showStatusMessage(const QString& str)
 {
     statusBar()->showMessage(str);
+}
+
+void MainWindow::selectionChanged(const QItemSelection& selection)
+{
+    gCont->updateGraph(static_cast<unsigned int>(
+                           selection.indexes().first().row()
+                           ));
 }

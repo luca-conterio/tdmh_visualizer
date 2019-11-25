@@ -21,9 +21,10 @@ SOURCES += main.cpp \
     linearea.cpp \
     logcontainer.cpp \
     logline.cpp \
+    loglistview.cpp \
     logloader.cpp \
-    logvisual.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    stringlistmodel.cpp
 
 
 #RESOURCES += qml.qrc
@@ -46,9 +47,10 @@ HEADERS += \
     linearea.h \
     logcontainer.h \
     logline.h \
+    loglistview.h \
     logloader.h \
-    logvisual.h \
     mainwindow.h \
+    stringlistmodel.h \
     tsqueue.h
 
 

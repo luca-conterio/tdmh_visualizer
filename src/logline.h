@@ -4,6 +4,7 @@
 #include <memory>
 /*!
  * \brief The LogLine class represents an entry in the log that carries adjacency values
+ * \author Francesco Franzini
  */
 class LogLine
 {

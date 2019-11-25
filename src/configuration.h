@@ -6,6 +6,7 @@
 #include <vector>
 /*!
  * \brief The Configuration class, used to store configuration variables
+ * \author Francesco Franzini
  */
 class Configuration
 {

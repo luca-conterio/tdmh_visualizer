@@ -1,15 +1,56 @@
 #include "linearea.h"
 
+#include <QPainter>
+#include <QModelIndex>
+#include <iostream>
+#include <QPaintEvent>
 
-
-LineArea::LineArea(LogVisual *logV) : QWidget(logV) {
-    this->logV=logV;
+LineArea::LineArea(LogListView * parent) : QWidget(parent) {
+    lV=parent;
 }
 
-/*QSize LineArea::sizeHint() const {
-    return QSize(logV->lineNumberAreaWidth(), 0);
-}*/
 
 void LineArea::paintEvent(QPaintEvent *event) {
-    logV->lineNumberAreaPaintEvent(event);
+
+    QPainter painter(this);
+
+    painter.fillRect(event->rect(), Qt::lightGray);
+    QModelIndex ind=lV->indexAt(lV->rect().topLeft());
+    int blockNumber = ind.row();
+
+    //Top= top of the view - the margin to the text
+    int top = static_cast<int>( lV->contentsRect().top()-lV->contentsMargins().top() );
+
+    //Bottom = top+ row size
+    int bottom = top +static_cast<int>( lV->sizeHintForRow(blockNumber) );
+
+
+    //while valid and visible at least partially before end
+    while (ind.isValid() &&top <= event->rect().bottom()) {
+        //if visible after the beginning
+        if (bottom >= event->rect().top()) {
+            QString number = QString::number(blockNumber);
+
+            //Insert spaces to ease reading line number
+            for(int i=number.size()-3;i>0;i-=3){
+                number.insert(i,' ');
+            }
+
+            //Highlight selected line number
+            if(blockNumber!=lV->getSelectedLine()){
+                painter.setPen(Qt::black);
+            }else{
+                painter.setPen(Qt::red);
+            }
+
+            painter.drawText(0, top, this->width(), fontMetrics().height(),
+                             Qt::AlignRight, number);
+        }
+
+        top = bottom;
+        ++blockNumber;
+        bottom = top + static_cast<int>( lV->sizeHintForRow(blockNumber) );
+        ind=lV->model()->index(blockNumber,0);
+
+    }
 }
