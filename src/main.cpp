@@ -19,23 +19,25 @@ int main(int argc, char *argv[])
 {
     Configuration cfg;
     if(argc==0){
-        std::cout << "No configuration file given, using defaults\n";
+        std::cout << "No configuration file given, using defaults"<<std::endl;
         cfg.loadCfg(nullptr);
     }else{
-        std::cout<< "Loading file:"<<argv[1]<<"\n";
+        std::cout<< "Loading file:"<<argv[1]<<std::endl;
         cfg.loadCfg(argv[1]);
     }
 
-    std::cout<< "Loaded "<<cfg.getNodeCount()<<" nodes\n";
+    std::cout<< "Loaded "<<cfg.getNodeCount()<<" nodes"<<std::endl;
 
-    std::cout<<"Mode: "<<cfg.getMode()<<"\n";
-    std::cout<<"Log path: "<<cfg.getLogPath()<<"\n";
+    std::cout<<"Mode: "<<cfg.getMode()<<std::endl;
+    std::cout<<"Log path: "<<cfg.getLogPath()<<std::endl;
 
     std::cout.flush();
 
-    auto lld=std::make_shared<LogLoader>();
+
     auto logC=std::make_shared<LogContainer>(static_cast<unsigned int>(cfg.getNodeCount()));
     auto tsq=std::make_shared<TSQueue>();
+
+    auto lld=std::make_shared<LogLoader>(cfg.getLogPath(),cfg.getMode(),logC,tsq);
 
     QApplication app(argc, argv);
 
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
     mW->setStyleSheet("QMainWindow {background: 'yellow';}");
     mW->setQueue(tsq);
 
-    lld->load(cfg.getLogPath(),cfg.getMode(),logC,tsq);
+    lld->load();
 
     std::cout.flush();
     return QApplication::exec();

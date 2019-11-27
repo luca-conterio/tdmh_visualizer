@@ -20,6 +20,11 @@ public:
     LineArea(LogListView *parent);
 
 protected:
+
+    /*!
+     * \brief paintEvent paints the line numbers of the visible lines
+     * \param event the paint event
+     */
     void paintEvent(QPaintEvent *event) override;
 
 private:

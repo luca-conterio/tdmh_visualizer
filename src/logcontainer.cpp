@@ -35,7 +35,7 @@ LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine)
 {
     std::lock_guard<std::mutex> lck(storeMutex);
     if(nodeId>=store.size()){
-        std::cout << "Invalid node id "<<nodeId <<"\n";
+        std::cout << "Invalid node id "<<nodeId <<std::endl;
         return {nodeId,0,std::make_unique<std::vector<bool>>(), std::make_unique<std::vector<bool>>()};
     }
     auto found= std::upper_bound (store[nodeId]->begin(), store[nodeId]->end(), maxLine, LogLine::comparator);
@@ -75,7 +75,7 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
 
     for (std::sregex_iterator i = declare_begin; i != declare_end; ++i) {
         std::smatch match = *i;
-        //std::cout << match[1] << " is " << match[2] << " "<<match[3]<<'\n';
+        //std::cout << match[1] << " is " << match[2] << " "<<match[3]<<std::endl;
 
         std::string strong=match[2].str();
         std::string weak;
@@ -95,6 +95,13 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
     }*/
 
     //[U] Topo 000: [0000000000000000][0000000000000000]
+
+    auto res = std::mismatch(prefix.begin(), prefix.end(), line.begin());
+    if (res.first != prefix.end())//Majority of ignored strings can be eliminated just by checking their beginning
+    {
+      return;
+    }
+
     std::vector <std::string> split;
     std::stringstream sst(line);
     std::string intermediate;
@@ -103,45 +110,42 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
     {
         split.push_back(intermediate);
     }
-    if(split[0]=="[U]" && split[1]=="Topo"){
-        split[2].pop_back();//Remove :
-        try {
-            //std::cout<<line<<" "<<lineN<<"\n";
-            auto index=static_cast<unsigned int>(std::stoi(split[2]));
-            unsigned long umaskSize;
-            bool weakPresent= (std::count(split[3].begin(), split[3].end(), '[')>1);
+    if(split.size()<3)return;
+    //if(split[0]=="[U]" && split[1]=="Topo"){
+    split[2].pop_back();//Remove ':'
+    try {
+        //std::cout<<line<<" "<<lineN<<std::endl;
+        auto index=static_cast<unsigned int>(std::stoi(split[2]));
+        unsigned long umaskSize;
+        bool weakPresent= (std::count(split[3].begin(), split[3].end(), '[')>1);
 
-            std::string::iterator it=split[3].begin()+1;
-            if(weakPresent){
-                //Weak present
-                umaskSize = (split[3].size()-4)/2;
-            }else{
-                umaskSize = split[3].size()-3;
-            }
-            auto maskSize=static_cast<long>(umaskSize);
-            std::vector<char> dataS(it,it+maskSize);
-            //std::string strong=split[3].substr(1,maskSize);
-
+        std::string::iterator it=split[3].begin()+1;
+        if(weakPresent){
+            umaskSize = (split[3].size()-4)/2;
+        }else{
+            umaskSize = split[3].size()-3;
+        }
+        auto maskSize=static_cast<long>(umaskSize);
+        std::vector<char> dataS(it,it+maskSize);
 
 
-            //std::string weak=split[3].substr(maskSize+3,maskSize);
-            std::vector<char> dataW;
-            if(weakPresent){
-                it+=maskSize;
-                dataW=std::vector<char>(it+2,it+2+maskSize);
-            }else{
-                dataW=std::vector<char>(dataS.size(),'0');
-            }
-
-            /*std::cout<<"Parsed s "<<std::string(dataS.begin(), dataS.end())<<" \n";
-            std::cout<<"Parsed w "<<std::string(dataW.begin(), dataW.end())<<" \n";*/
-
-            this->addLine(index,lineN,dataS,dataW);
-        } catch (std::invalid_argument&) {
-            //Invalid line, ignore
+        std::vector<char> dataW;
+        if(weakPresent){
+            it+=maskSize;
+            dataW=std::vector<char>(it+2,it+2+maskSize);
+        }else{
+            dataW=std::vector<char>(dataS.size(),'0');
         }
 
+        //std::cout<<"Parsed s "<<std::string(dataS.begin(), dataS.end())<<std::endl;
+        //std::cout<<"Parsed w "<<std::string(dataW.begin(), dataW.end())<<std::endl;
+
+        this->addLine(index,lineN,dataS,dataW);
+    } catch (std::invalid_argument&) {
+        //Invalid line, ignore
     }
+
+    //}
 
 }
 

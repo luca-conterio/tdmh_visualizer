@@ -85,7 +85,7 @@ void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<L
                     QPen(), QBrush(Qt::red));*/
         circleVect.emplace_back(i,list[i].first,list[i].second,scene);
     }
-    std::cout<<"Configured graph with "<<circleVect.size()<<" elements\n";
+    std::cout<<"Configured graph with "<<circleVect.size()<<" elements"<<std::endl;
 
 }
 

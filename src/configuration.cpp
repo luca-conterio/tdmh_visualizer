@@ -21,9 +21,17 @@ void Configuration::loadCfg(char *ptr)
         if(line.empty()||line[0]=='#')continue;
         std::string opt;
         std::string val;
+
+        //Flags
+        if(line=="BATCHFIRST"){
+            this->batchFirst=true;
+            continue;
+        }
+
+        //Options
         size_t pos=line.find('=');
         if(pos==std::string::npos){
-            std::cout<< "Invalid config line :"<<line<<"\n";
+            std::cout<< "Invalid config line :"<<line<<std::endl;
             continue;
         }
         opt=line.substr(0,pos);
@@ -41,13 +49,13 @@ void Configuration::loadCfg(char *ptr)
             }else if(val=="STAT"){
                 mode=STAT;
             }else{
-                std::cout <<"Unrecognized mode: "<<val<<"\n";
+                std::cout <<"Unrecognized mode: "<<val<<std::endl;
             }
         }else if(opt=="NODECOUNT"){
             try {
                 node_count=std::stoi(val);
             } catch (std::invalid_argument&) {
-                std::cout <<"Invalid node count: "<<val<<"\n";
+                std::cout <<"Invalid node count: "<<val<<std::endl;
             }
         }else if(opt=="IMAGE"){
             img_path=val;
@@ -63,13 +71,13 @@ void Configuration::loadCfg(char *ptr)
             for(const auto& t: triples)processTuple(t);
 
         }else{
-            std::cout<<"Unrecognized option "<<opt<<"\n";
+            std::cout<<"Unrecognized option "<<opt<<std::endl;
         }
 
     }
     // Close the File
     file.close();
-    std::cout <<"Finished loading configs \n";
+    std::cout <<"Finished loading configs"<<std::endl;
 }
 
 int Configuration::getNodeCount() const
@@ -98,8 +106,13 @@ std::vector<std::pair<int, int> > Configuration::getNodeList() const
     return nodeList;
 }
 
+bool Configuration::getBatchFirst() const
+{
+    return batchFirst;
+}
+
 void Configuration::pushNode(size_t i, int x, int y){
-    std::cout <<"Pushing node "<<i<<" "<<x<<" "<<y<<"\n";
+    std::cout <<"Pushing node "<<i<<" "<<x<<" "<<y<<std::endl;
     if(nodeList.size()<=i){
         for(size_t j=nodeList.size();j<=i;j++){
             nodeList.emplace_back(0,0);
@@ -142,10 +155,10 @@ void Configuration::processTuple(const std::string& t)
             pushNode(static_cast<size_t>(ni),nx,ny);
             return;
         } catch (std::invalid_argument&) {
-            //std::cout <<"Invalid tuple "<<t<<" \n";
+            //std::cout <<"Invalid tuple "<<t<<std::endl;
         }
     }
-    std::cout <<"Invalid tuple "<<t<<" \n";
+    std::cout <<"Invalid tuple "<<t<<std::endl;
 }
 
 void Configuration::trim(std::string &s)

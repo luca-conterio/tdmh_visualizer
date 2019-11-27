@@ -29,7 +29,12 @@ private:
     std::unique_ptr<std::thread> textThread=nullptr;
     std::shared_ptr<TSQueue> ts=nullptr;
     std::shared_ptr<LogLoader> lld=nullptr;
-    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, MainWindow *parent);
+    Configuration c;
+    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, MainWindow *parent, int linePerIter, int sleepTime);
+    const int defaultLinePerIter=100000;
+    const int defaultSleepTime=200;
+    int linePerIter=defaultLinePerIter;
+    int sleepTime=defaultSleepTime;
 public:
     /*!
      * \brief MainWindow Constructor

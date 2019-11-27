@@ -12,6 +12,7 @@ class LogContainer
 {
 private:
     private:
+    const std::string prefix="[U] Topo ";
     std::mutex storeMutex;
     std::vector<std::unique_ptr<std::vector<LogLine>>> store;
 

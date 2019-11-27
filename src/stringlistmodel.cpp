@@ -6,6 +6,7 @@ StringListModel::StringListModel(QListView *parent):QAbstractListModel(parent)
     //First real line should be at [1] for ease of use
     strList.push_back(new std::string);
     batchSize=this->initBatchSize;
+    this->listParent=parent;
 }
 
 int StringListModel::rowCount(const QModelIndex& /*parent*/) const
@@ -31,24 +32,26 @@ QVariant StringListModel::data(const QModelIndex &index, int role) const
 
 void StringListModel::addString(std::vector<std::string*> str)
 {
-    //int size=static_cast<int>(str.size());
-    //this->beginInsertRows(QModelIndex(),rowCount(),rowCount()+size);
+
     strList.insert( strList.end(), str.begin(), str.end() );
-    //this->endInsertRows();
-    if(fetchedStrings<initBatchSize){
+
+    if(realt ||fetchedStrings<initBatchSize){
         fetchMore(QModelIndex());
+        this->listParent->repaint();
     }
 }
 
 void StringListModel::fetchMore(const QModelIndex &parent)
 {
-    if (parent.isValid())
+    //If parent already valid or batch batch is disabled and not in realtime yet
+    if (parent.isValid() || (batchUpdateDisabled&&!realt))
         return;
     int remainder = static_cast<int>(strList.size()) - fetchedStrings;
     int itemsToFetch = qMin(batchSize, remainder);
     if (itemsToFetch <= 0)
         return;
 
+    itemsToFetch = (batchUpdateDisabled)?remainder:itemsToFetch;
     beginInsertRows(QModelIndex(), fetchedStrings, fetchedStrings + itemsToFetch - 1);
     fetchedStrings += itemsToFetch;
     endInsertRows();
@@ -60,7 +63,8 @@ bool StringListModel::canFetchMore(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return false;
-    return (fetchedStrings < static_cast<int>(strList.size()));
+    //If batch not disabled or in real time can consider reading
+    return (!batchUpdateDisabled||realt) && (fetchedStrings < static_cast<int>(strList.size()));
 }
 
 int StringListModel::getFetchedStrings() const
@@ -68,4 +72,15 @@ int StringListModel::getFetchedStrings() const
     return fetchedStrings;
 }
 
+void StringListModel::goRealTime()
+{
+    this->realt=true;
+    if(this->batchUpdateDisabled){
+        fetchMore(QModelIndex());
+    }
+}
+
+void StringListModel::disableBatchUpdates(){
+    this->batchUpdateDisabled=true;
+}
 

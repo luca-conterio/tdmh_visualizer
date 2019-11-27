@@ -21,6 +21,7 @@ private:
     std::string log_path="log.txt";
     std::string img_path="image.jpg";
     MODE mode=BATCH;
+    bool batchFirst=false;
     std::vector<std::pair<int,int>> nodeList;
 
     /*!
@@ -75,6 +76,12 @@ public:
       * \return the list of pairs (x,y) of each note of index i
       */
      std::vector<std::pair<int, int> > getNodeList() const;
+
+     /*!
+      * \brief getBatchFirst returns true if the batchFirst flag is set
+      * \return batchFirst flag
+      */
+     bool getBatchFirst() const;
 };
 
 #endif // CONFIGURATION_H

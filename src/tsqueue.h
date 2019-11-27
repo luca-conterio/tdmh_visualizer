@@ -1,9 +1,10 @@
 #ifndef TSQUEUE_H
 #define TSQUEUE_H
 #include <queue>
-#include <mutex>
-#include <condition_variable>
+#include <QWaitCondition>
 #include <iostream>
+#include <QMutex>
+#include <QThread>
 /*!
  * \brief The TSQueue class a ts queue implementation that can be broken to inhibit push
  * \author Francesco Franzini
@@ -12,31 +13,34 @@ class TSQueue
 {
 private:
     std::queue<std::string*> queue;
-    std::mutex qLock;
-    std::condition_variable cV;
+    QMutex qLock;
+    QWaitCondition cV;
     bool broken=false;
     bool batch=true;
 public:
 
     /*!
-     * \brief pop pops a string from the queue, sets valid to false if the queue was broken or empty. does not block if queue is empty
+     * \brief pop pops a string from the queue, sets valid to false if the queue was broken or empty. does not block if queue is empty and block is false
      * \param valid if the read string is meaningful
+     * \param block set to true if the method has to block until an element is available or queue is broken
      * \return the read string
      */
-    std::string * pop(bool &valid)
+    std::string * pop(bool &valid,bool block)
     {
-        std::unique_lock<std::mutex> lck(qLock);
-
-        /*while(queue.empty()){
-            if(broken){
-                valid=false;
-                return "";
+        QMutexLocker lck(&qLock);
+        if(block){
+            while(queue.empty()){
+                if(broken){
+                    valid=false;
+                    return nullptr;
+                }
+                cV.notify_one();
+                cV.wait(&qLock);
             }
-            cV.wait(lck);
-        }*/
-        if(queue.empty()){
+        }else if(queue.empty()){
+            cV.notify_one();
             valid=false;
-            return new std::string("");
+            return nullptr;
         }
         std::string* el=queue.front();
         queue.pop();
@@ -51,9 +55,9 @@ public:
     void push(std::string* el)
     {
         if(broken)return;
-        std::unique_lock<std::mutex> lck(qLock);
+        QMutexLocker lck(&qLock);
         queue.push(el);
-        cV.notify_one();
+        cV.notify_all();
     }
 
     /*!
@@ -84,6 +88,16 @@ public:
      */
     bool isBatch(){
         return this->batch;
+    }
+
+    /*!
+     * \brief waitEmpty waits until the queue is fully emptied
+     */
+    void waitEmpty(){
+        QMutexLocker lck(&qLock);
+        while(!queue.empty() && !QThread::currentThread()->isInterruptionRequested()){
+            cV.wait(&qLock);
+        }
     }
 };
 

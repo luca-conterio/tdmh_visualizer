@@ -24,6 +24,7 @@ SOURCES += main.cpp \
     loglistview.cpp \
     logloader.cpp \
     mainwindow.cpp \
+    rtwatcher.cpp \
     stringlistmodel.cpp
 
 
@@ -50,6 +51,7 @@ HEADERS += \
     loglistview.h \
     logloader.h \
     mainwindow.h \
+    rtwatcher.h \
     stringlistmodel.h \
     tsqueue.h
 

@@ -21,7 +21,6 @@ public:
     StringListModel(QListView *parent=nullptr);
 
     // QAbstractItemModel interface
-public:
     /*!
      * \brief rowCount returns the row count of inserted(not necessarily in view yet) lines
      * \param parent parent index
@@ -39,11 +38,14 @@ public:
 
 
 private:
+    bool realt=false;
+    bool batchUpdateDisabled=false;
     int fetchedStrings=1;
     std::vector<std::string*> strList;
     const int initBatchSize=1000;
     const int batchIncreaseDivisor=10;
     int batchSize;
+    QListView * listParent;
 public slots:
     /*!
      * \brief addString appends a vector of lines to the storage, without updating the view
@@ -73,6 +75,15 @@ public:
      */
     int getFetchedStrings() const;
 
+    /*!
+     * \brief goRealTime puts this model in real time mode, adding rows to view as soon as they are inserted
+     */
+    void goRealTime();
+
+    /*!
+     * \brief disableBatchUpdates disables view updates until goRealTime() is called
+     */
+    void disableBatchUpdates();
 signals:
 
     /*!
