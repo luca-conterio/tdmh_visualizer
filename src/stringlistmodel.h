@@ -82,7 +82,7 @@ public slots:
      * \brief addString appends a vector of lines to the storage, without updating the view
      * \param str the vector of strings
      */
-    void addString(const std::vector<std::string *> str);
+    void addString(std::vector<std::string *> str);
 
 
 

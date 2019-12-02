@@ -16,7 +16,7 @@
 int main(int argc, char *argv[])
 {
     Configuration cfg;
-    if(argc==0){
+    if(argc==1){
         std::cout << "No configuration file given, using defaults"<<std::endl;
         cfg.loadCfg(nullptr);
     }else{

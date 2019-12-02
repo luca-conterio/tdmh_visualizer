@@ -32,6 +32,7 @@ private:
     QWidget * const lineNumberArea;
     int lineNumberAreaWidth() const;
     void updateLineNumberArea(const QRect &rect,int dy);
+    QLineEdit * const findBox;
 
 public slots:
 
@@ -40,6 +41,15 @@ public slots:
      */
     void updateLineNumberAreaWidth();
 
+    /*!
+     * \brief searchActivated brings up the line search box
+     */
+    void searchActivated();
+
+    /*!
+     * \brief goToFindLine scrolls to the line number indicated in the find box
+     */
+    void goToFindLine();
 
     // QAbstractItemView interface
 protected slots:

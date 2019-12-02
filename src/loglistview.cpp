@@ -1,11 +1,20 @@
 #include "linearea.h"
 #include "loglistview.h"
 #include "stringlistmodel.h"
+#include <QLineEdit>
+#include <QShortcut>
 #include <iostream>
+#include <QKeyEvent>
 
-LogListView::LogListView(QWidget *parent):QListView(parent), lineNumberArea(new LineArea(this))
+LogListView::LogListView(QWidget *parent):QListView(parent), lineNumberArea(new LineArea(this)),findBox(new QLineEdit(this))
 {
     updateLineNumberAreaWidth();
+
+    findBox->hide();
+
+    auto shortcut = new QShortcut(QKeySequence(tr("return")), findBox);
+    shortcut->setContext(Qt::ApplicationShortcut);
+    connect(shortcut, &QShortcut::activated,this, &LogListView::goToFindLine);
 }
 
 int LogListView::getSelectedLine() const
@@ -36,6 +45,26 @@ int LogListView::lineNumberAreaWidth() const
 void LogListView::updateLineNumberAreaWidth()
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);//Leave space for numbers
+}
+
+void LogListView::searchActivated()
+{
+    if(findBox->isHidden()){
+        findBox->show();
+    }else{
+        findBox->hide();
+    }
+}
+
+void LogListView::goToFindLine()
+{
+    if(findBox->isHidden())return;
+
+    const auto rowNumber=findBox->text().toInt();
+    if(rowNumber!=0){
+        auto index=model()->index(rowNumber,0);
+        this->scrollTo(index);
+    }
 }
 
 
@@ -69,4 +98,10 @@ void LogListView::resizeEvent(QResizeEvent *e)
     QRect cr = contentsRect();
     updateLineNumberAreaWidth();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+
+    findBox->setGeometry(
+                QRect(cr.right()-findBox->sizeHint().width(), cr.bottom()-findBox->sizeHint().height(),
+                      findBox->sizeHint().width(), findBox->sizeHint().height()
+                      ));
 }
+

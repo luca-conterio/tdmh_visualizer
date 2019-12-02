@@ -10,6 +10,7 @@
 #include <QSplitter>
 #include <QStringListModel>
 #include <QCoreApplication>
+#include <QShortcut>
 
 void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* parent,const int linePerIter,const int sleepTime)
 {
@@ -94,6 +95,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setCentralWidget(centralW);
 
     statusBar()->showMessage(tr("Ready"));
+
+
+    auto shortcut = new QShortcut(QKeySequence(tr("Ctrl+f")), this);
+    shortcut->setContext(Qt::ApplicationShortcut);
+    connect(shortcut, &QShortcut::activated,listW, &LogListView::searchActivated);
 }
 
 void MainWindow::setQueue(const std::shared_ptr<TSQueue>& tsq)

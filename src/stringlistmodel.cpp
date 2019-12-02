@@ -10,7 +10,8 @@ StringListModel::StringListModel(QListView *parent):QAbstractListModel(parent),l
 
 int StringListModel::rowCount(const QModelIndex& /*parent*/) const
 {
-    return static_cast<int>(strList.size());
+    //return static_cast<int>(strList.size());
+    return fetchedStrings;
 }
 
 QVariant StringListModel::data(const QModelIndex &index, int role) const
@@ -29,7 +30,7 @@ QVariant StringListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void StringListModel::addString(const std::vector<std::string*> str)
+void StringListModel::addString(std::vector<std::string*> str)
 {
     strList.insert( strList.end(), str.begin(), str.end() );
 

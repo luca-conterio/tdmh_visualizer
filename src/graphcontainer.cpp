@@ -16,7 +16,7 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new
 
     weakPen.setStyle(Qt::DashDotLine);
     weakPen.setWidth(2);
-    weakPen.setBrush(Qt::green);
+    weakPen.setBrush(Qt::darkGreen);
     weakPen.setCapStyle(Qt::RoundCap);
     weakPen.setJoinStyle(Qt::RoundJoin);
 
