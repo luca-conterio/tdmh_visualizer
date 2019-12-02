@@ -17,11 +17,14 @@ public:
      */
     enum MODE {BATCH, STAT, RTIME};
 private:
+
+    //Default values used if not specified in the configuration file
     int node_count=default_nodes;
     std::string log_path="log.txt";
     std::string img_path="image.jpg";
     MODE mode=BATCH;
     bool batchFirst=false;
+
     std::vector<std::pair<int,int>> nodeList;
 
     /*!
@@ -32,12 +35,23 @@ private:
      */
     void pushNode(size_t i, int x, int y);
 
+
+    /*!
+     * \brief processTuple processes a tuple and if valid pushes it to the node list
+     * \param t tuple to process
+     */
     void processTuple(const std::string& t);
 
-    static inline void trim(std::string &s);
-public:
     /*!
-     * \brief max_nodes default number of nodes
+     * \brief trim trims both ends of a string
+     * \param s string to be trimmed
+     */
+    static inline void trim(std::string &s);
+
+public:
+
+    /*!
+     * \brief default_nodes default number of nodes to be used
      */
     static const int default_nodes=16;
 
@@ -45,7 +59,7 @@ public:
       * \brief loadCfg loads configuration from file, if ptr is null or parameters are missing, defaults are used
       * \param ptr path to config file
       */
-     void loadCfg(char * ptr);
+     void loadCfg(const char *ptr);
 
      /*!
       * \brief getNodeCount node_count getter

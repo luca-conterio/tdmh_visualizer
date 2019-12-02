@@ -6,11 +6,10 @@
 #include <QWheelEvent>
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
-
 #include <iostream>
-GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent)
+
+GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new QGraphicsScene(this))
 {
-    scene=new QGraphicsScene(this);
     this->setScene(scene);
     this->setBackgroundBrush(Qt::darkGray);
 
@@ -31,23 +30,25 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent)
 
 void GraphContainer::wheelEvent(QWheelEvent* e) {
 
-    if ((e->modifiers()&Qt::ControlModifier) == Qt::ControlModifier){
+    if ((e->modifiers()&Qt::ControlModifier) == Qt::ControlModifier){//If control is pressed(otherwise it interferes with scrolling)
         QPoint  posAbsolute  = e->pos();
         QPointF posRelative = this->mapToScene(posAbsolute);
         double angle = e->angleDelta().y();
 
         double sc;
         const int fullAngle=360;
-        const double scalingFactor=0.1;
+        const double scalingFactor=0.1; //Increase this to scroll faster
+
         sc= 1+ (angle/fullAngle *scalingFactor);
         this->scale(sc, sc);
 
         double w = this->viewport()->width();
         double h = this->viewport()->height();
-        //W and H scaled to scene
 
+        //W and H scaled to scene
         double wrel = this->mapToScene(QPoint(static_cast<int>(w)-1, 0)).x()-this->mapToScene(QPoint(0,0)).x();
         double hrel = this->mapToScene(QPoint(0, static_cast<int>(h)-1)).y()-this->mapToScene(QPoint(0,0)).y();
+
 
         double lf = posRelative.x() - posAbsolute.x() * wrel / w;
         double tf = posRelative.y() - posAbsolute.y() * hrel / h;
@@ -69,20 +70,17 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
 void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<LogContainer>& lC)
 {
     this->lC=lC;
-    QString url = QString::fromStdString(c.getImgPath());
+    const QString url = QString::fromStdString(c.getImgPath());
     QPixmap bgImg(url);
 
-
-    //bgImg=bgImg.scaled(viewport()->contentsRect().size());
     QGraphicsPixmapItem pixItem(bgImg);
     scene->addPixmap(bgImg);
 
-    scene->setSceneRect(bgImg.rect());
+    scene->setSceneRect(bgImg.rect());//Fit image to scene
 
-    auto list=c.getNodeList();
+    const auto list=c.getNodeList();
     for(size_t i=0;i<list.size();i++){
-        /*scene->addEllipse(list[i].first-rad, list[i].second-rad, rad*2.0, rad*2.0,
-                    QPen(), QBrush(Qt::red));*/
+        //GraphCircle constructor will take care of drawing the circles
         circleVect.emplace_back(i,list[i].first,list[i].second,scene);
     }
 
@@ -91,19 +89,24 @@ void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<L
 
 }
 
-void GraphContainer::updateGraph(unsigned int lineN)
+void GraphContainer::updateGraph(const unsigned int lineN)
 {
 
+    //Remove old lines
     for(auto line:lines){
         scene->removeItem(line);
         delete line;
     }
     lines.clear();
 
-    if(stat){//TODO switch timed/untimed
+    if(stat){
         QPen pen=weakPen;
-        auto matrix=lC->getAvail(lineN<=lC->getTempThresh());
-        auto nodeCount=matrix.size();
+
+        //Pull matrix corresponding to selected line number
+        const auto matrix=lC->getAvail(lineN<=lC->getTempThresh());
+        const auto nodeCount=matrix.size();
+
+        //Using only higher matrix
         for(size_t i=0;i<nodeCount;i++){
             for(size_t j=i;j<nodeCount;j++){
                 auto* line=new QGraphicsLineItem(circleVect.at(i).getX(),circleVect.at(i).getY()
@@ -112,10 +115,11 @@ void GraphContainer::updateGraph(unsigned int lineN)
 
                 QVector<qreal> dashes;
                 qreal total=dashCycleSize;
-                //std::cout<<"Prob "<<i<<" "<<j<<" "<<matrix[i][j]<<std::endl;
-                qreal length=(matrix[i][j])*total; //Percentage of total
-                qreal space = total-length;
+                qreal length=(matrix[i][j])*total; //Percentage of total filled with line
+                qreal space = total-length; //Remaining space is empty
                 dashes << length<<space ;
+
+                //Change color if timed or untimed
                 if(lineN<=lC->getTempThresh())pen.setColor(Qt::blue);
 
                 pen.setDashPattern(dashes);
@@ -130,8 +134,12 @@ void GraphContainer::updateGraph(unsigned int lineN)
 
         QPen pen;
         for(auto g1:circleVect){
-            LogLine l=lC->findLine(g1.getI(),lineN);
+            //Find outgoing arcs from each node
+            const LogLine l=lC->findLine(g1.getI(),lineN);
+
             for(auto g2:circleVect){
+
+                //If this node corrresponds to weak or strong arcs outgoing from g1
                 if(l.getStrongMask(g2.getI())){
                     pen=strongPen;
                 }else if(l.getWeakMask(g2.getI())){

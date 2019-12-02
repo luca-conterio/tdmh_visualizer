@@ -21,11 +21,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    QWidget centralW;
-    QToolBar *fileToolbar=nullptr;
-    GraphContainer *gCont=nullptr;
-    LogListView *listW=nullptr;
-    StringListModel *model=nullptr;
+    QWidget * const centralW;
+    //QToolBar *fileToolbar=nullptr;
+    GraphContainer * const gCont=nullptr;
+    LogListView * const listW=nullptr;
+    StringListModel * const model=nullptr;
     std::unique_ptr<std::thread> textThread=nullptr;
     std::shared_ptr<TSQueue> ts=nullptr;
     std::shared_ptr<LogLoader> lld=nullptr;

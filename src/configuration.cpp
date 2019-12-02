@@ -6,14 +6,13 @@
 #include <sstream>
 #include <algorithm>
 
-void Configuration::loadCfg(char *ptr)
+void Configuration::loadCfg(const char *ptr)
 {   
     if(ptr==nullptr)return;
-    std::string fileName(ptr);
-    std::string delimeter=";";
+
+    const std::string fileName(ptr);
 
     std::ifstream file(fileName);
-
 
     std::string line;
     while (getline(file, line))
@@ -29,7 +28,7 @@ void Configuration::loadCfg(char *ptr)
         }
 
         //Options
-        size_t pos=line.find('=');
+        const size_t pos=line.find('=');
         if(pos==std::string::npos){
             std::cout<< "Invalid config line :"<<line<<std::endl;
             continue;
@@ -60,15 +59,15 @@ void Configuration::loadCfg(char *ptr)
         }else if(opt=="IMAGE"){
             img_path=val;
         }else if(opt=="NODELIST"){
-            std::vector <std::string> triples;
+
             std::stringstream sst(val);
             std::string intermediate;
 
+            //Split on ( and then process each tuple
             while(getline(sst, intermediate, '('))
             {
-                triples.push_back(intermediate);
+                processTuple(intermediate);
             }
-            for(const auto& t: triples)processTuple(t);
 
         }else{
             std::cout<<"Unrecognized option "<<opt<<std::endl;
@@ -111,8 +110,11 @@ bool Configuration::getBatchFirst() const
     return batchFirst;
 }
 
-void Configuration::pushNode(size_t i, int x, int y){
+void Configuration::pushNode(const size_t i, const int x, const int y){
+
     std::cout <<"Pushing node "<<i<<" "<<x<<" "<<y<<std::endl;
+
+    //Fit to new size if bigger
     if(nodeList.size()<=i){
         for(size_t j=nodeList.size();j<=i;j++){
             nodeList.emplace_back(0,0);
@@ -121,23 +123,10 @@ void Configuration::pushNode(size_t i, int x, int y){
     nodeList[i]={x,y};
 }
 
-// trim from start (in place)
-static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-        return !std::isspace(ch);
-    }));
-}
-
-// trim from end (in place)
-static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-}
-
 void Configuration::processTuple(const std::string& t)
 {
     if(t.empty())return;
+
     std::vector <std::string> triple;
     std::stringstream sst(t);
     std::string intermediate;
@@ -146,12 +135,14 @@ void Configuration::processTuple(const std::string& t)
     {
         triple.push_back(intermediate);
     }
-    if(triple.size()==3){
+
+    if(triple.size()==3){ // 0,0,0) becomes 0 0 0)
         try {
-            int ni=std::stoi(triple[0]);
-            int nx=std::stoi(triple[1]);
-            triple[2].pop_back();
-            int ny=std::stoi(triple[2]);
+            triple[2].pop_back();//Remove )
+            const int ni=std::stoi(triple[0]);
+            const int nx=std::stoi(triple[1]);
+            const int ny=std::stoi(triple[2]);
+
             pushNode(static_cast<size_t>(ni),nx,ny);
             return;
         } catch (std::invalid_argument&) {
@@ -161,11 +152,25 @@ void Configuration::processTuple(const std::string& t)
     std::cout <<"Invalid tuple "<<t<<std::endl;
 }
 
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
 void Configuration::trim(std::string &s)
 {
     ltrim(s);
     rtrim(s);
 }
+
+
 
 
 

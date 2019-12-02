@@ -10,8 +10,8 @@
 class GraphCircle
 {
 private:
-    int x;
-    int y;
+    const int x;
+    const int y;
     const size_t i;
     QGraphicsEllipseItem * el;
     QGraphicsTextItem * t;
@@ -19,7 +19,7 @@ private:
 public:
 
     /*!
-     * \brief GraphCircle initializes this object with the given settings and adds them to the scene
+     * \brief GraphCircle initializes this object with the given settings and adds the graphical elements to the scene
      * \param i index to write on screen
      * \param x x position
      * \param y y position
@@ -27,12 +27,12 @@ public:
      */
     GraphCircle(size_t i, int x, int y, QGraphicsScene *scene);
 
-    /*!
+    /*
      * \brief setPos changes the position
      * \param x new x
      * \param y new y
      */
-    void setPos(int x,int y);
+    //void setPos(int x,int y);
 
     /*!
      * \brief getX x getter

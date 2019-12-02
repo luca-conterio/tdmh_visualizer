@@ -14,17 +14,29 @@
 class GraphContainer: public QGraphicsView
 {
     Q_OBJECT
+
 private:
-    QGraphicsScene * scene;
-    int _numScheduledScalings=0;
+
+    QGraphicsScene * const scene;
+
+    //Vector to store circles objects
     std::vector<GraphCircle> circleVect;
+
+    //Pointer to LogContainer used to fetch data
     std::shared_ptr<LogContainer> lC=nullptr;
+
+    //Pointer to the arcs that have been drawn
     std::vector<QGraphicsLineItem*> lines;
+
     QPen weakPen;
     QPen strongPen;
+
+    //true if the gui is in stat mode
     bool stat=false;
+
     const qreal dashCycleSize=10.0;
 public:
+
     /*!
      * \brief GraphContainer constructs a new View and scene
      * \param parent parent widget
@@ -32,7 +44,7 @@ public:
     GraphContainer(QWidget * parent=nullptr);
 
     /*!
-     * \brief wheelEvent overrides standard wheel event to add pointer-centered zoom
+     * \brief wheelEvent overrides standard wheel event to add cursor-centered zoom
      * \param event the QWheelEvent
      */
     void wheelEvent ( QWheelEvent * event ) override;
@@ -47,12 +59,12 @@ public:
 
 
 public slots:
+
     /*!
      * \brief updateGraph updates the graph to new LineN
      * \param lineN
      */
     void updateGraph(unsigned int lineN);
-signals:
 };
 
 #endif // GRAPHCONTAINER_H

@@ -1,12 +1,11 @@
 #include "stringlistmodel.h"
 #include <QCoreApplication>
 #include <iostream>
-StringListModel::StringListModel(QListView *parent):QAbstractListModel(parent)
+StringListModel::StringListModel(QListView *parent):QAbstractListModel(parent),listParent(parent)
 {
     //First real line should be at [1] for ease of use
     strList.push_back(new std::string);
     batchSize=this->initBatchSize;
-    this->listParent=parent;
 }
 
 int StringListModel::rowCount(const QModelIndex& /*parent*/) const
@@ -30,9 +29,8 @@ QVariant StringListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void StringListModel::addString(std::vector<std::string*> str)
+void StringListModel::addString(const std::vector<std::string*> str)
 {
-
     strList.insert( strList.end(), str.begin(), str.end() );
 
     if(realt ||fetchedStrings<initBatchSize){

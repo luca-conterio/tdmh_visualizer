@@ -17,42 +17,49 @@ std::unique_ptr<std::vector<bool> > LogContainer::toBoolVec(const std::vector<ch
     return out;
 }
 
-LogContainer::LogContainer(unsigned int initSize)
+LogContainer::LogContainer(const unsigned int initSize)
 {
     for(unsigned int i=0;i<initSize;i++){
         store.push_back(std::make_unique<std::vector<LogLine>>());
     }
 }
 
-void LogContainer::addLine(unsigned int nodeId, unsigned int lineN, const std::vector<char> &strong, const std::vector<char> &weak)
+void LogContainer::addLine(const unsigned int nodeId, const unsigned int lineN, const std::vector<char> &strong, const std::vector<char> &weak)
 {
     std::lock_guard<std::mutex> lck(storeMutex);
+
     if(nodeId>=store.size()){
         //If node was not accounted for, grow the store size to account for it
         for(unsigned long i=store.size();i<=nodeId;i++){
             store.push_back(std::make_unique<std::vector<LogLine>>());
         }
     }
+
     LogLine a(nodeId,lineN,toBoolVec(strong),toBoolVec(weak));
+
     store[nodeId]->push_back(a);
 }
 
-LogLine LogContainer::findLine(unsigned int nodeId, unsigned int maxLine)
+LogLine LogContainer::findLine(const unsigned int nodeId, const unsigned int maxLine)
 {
     std::lock_guard<std::mutex> lck(storeMutex);
+
     if(nodeId>=store.size()){
         std::cout << "Invalid node id "<<nodeId <<std::endl;
+        //Return generic line
         return {nodeId,0,std::make_unique<std::vector<bool>>(), std::make_unique<std::vector<bool>>()};
     }
+
+    //Find first that is strict greater than line number
     auto found= std::upper_bound (store[nodeId]->begin(), store[nodeId]->end(), maxLine, LogLine::comparator);
 
-    if( (found==store[nodeId]->begin()) ){
+    if( (found==store[nodeId]->begin()) ){//No line is before given line number => return a generic line
         return {nodeId,0,std::make_unique<std::vector<bool>>(),std::make_unique<std::vector<bool>>()};
     }
-    if((found==store[nodeId]->end())){
+    if((found==store[nodeId]->end())){ //All lines are before=> return last
         return store[nodeId]->back();
     }
-    return *(found-1);
+    return *(found-1);//Return first that is not greater
 }
 
 unsigned int LogContainer::getSize()
@@ -60,11 +67,11 @@ unsigned int LogContainer::getSize()
     return static_cast<unsigned int> (store.size());
 }
 
-void LogContainer::process(unsigned int lineN,const std::string &line)
+void LogContainer::process(const unsigned int lineN,const std::string &line)
 {
     //[U] Topo 000: [0000000000000000][0000000000000000]
 
-    auto res = std::mismatch(prefix.begin(), prefix.end(), line.begin());
+    const auto res = std::mismatch(prefix.begin(), prefix.end(), line.begin());
     if (res.first != prefix.end())//Majority of ignored strings can be eliminated just by checking their beginning
     {
       return;
@@ -164,7 +171,6 @@ void LogContainer::processStat( const std::string &line)
 
 void LogContainer::setTempThresh(unsigned int value)
 {
-
     tempThresh = value;
 }
 
@@ -202,7 +208,7 @@ void LogContainer::lastLine()
     }
 }
 
-std::vector<std::vector<double> > LogContainer::getAvail(bool time)
+std::vector<std::vector<double> > LogContainer::getAvail(const bool time)
 {
     if(time){
         return timedPercMat;
@@ -210,7 +216,7 @@ std::vector<std::vector<double> > LogContainer::getAvail(bool time)
     return untimedPercMat;
 }
 
-void LogContainer::updateMatSize(unsigned int newCount)
+void LogContainer::updateMatSize(const unsigned int newCount)
 {
     while(timedMat.size()<=newCount)timedMat.emplace_back(newCount);
     while(untimedMat.size()<=newCount)untimedMat.emplace_back(newCount);
@@ -221,11 +227,3 @@ void LogContainer::updateMatSize(unsigned int newCount)
     }
     this->maxNode=newCount;
 }
-
-
-/*LogContainer::~LogContainer()
-{
-    for(auto v :store) {
-        delete v;
-    }
-}*/

@@ -11,6 +11,7 @@
 class LogListView: public QListView
 {
     Q_OBJECT
+
 public:
 
     /*!
@@ -23,18 +24,14 @@ public:
      * \brief getSelectedLine returns the row number of the currently selected line, 0 if none selected
      * \return row number of currently selected line
      */
-    int getSelectedLine();
+    int getSelectedLine() const;
 
-protected:
 
-    /*!
-     * \brief resizeEvent calls QListView's resize event and resizes the line number column
-     * \param e the Resize event
-     */
-    void resizeEvent(QResizeEvent *e) override;
 
 private:
-    QWidget *lineNumberArea;
+    QWidget * const lineNumberArea;
+    int lineNumberAreaWidth() const;
+    void updateLineNumberArea(const QRect &rect,int dy);
 
 public slots:
 
@@ -42,9 +39,6 @@ public slots:
      * \brief updateLineNumberAreaWidth updates the margins of the Text part of this widget
      */
     void updateLineNumberAreaWidth();
-private slots:
-    int lineNumberAreaWidth();
-    void updateLineNumberArea(const QRect &rect,int dy);
 
 
     // QAbstractItemView interface
@@ -64,6 +58,12 @@ protected:
      * \param event
      */
     void mousePressEvent(QMouseEvent *event) override;
+
+    /*!
+     * \brief resizeEvent calls QListView's resize event and resizes the line number column
+     * \param e the Resize event
+     */
+    void resizeEvent(QResizeEvent *e) override;
 };
 
 #endif // LOGLISTVIEW_H

@@ -1,13 +1,12 @@
 #ifndef LOGLOADER_H
 #define LOGLOADER_H
+
 #include "logcontainer.h"
 #include "tsqueue.h"
-
-
 #include <string>
 #include <configuration.h>
-#include <thread>
 #include <QThread>
+
 /*!
  * \brief The LogLoader is used to load data from the logfile
  * \author Francesco Franzini
@@ -15,7 +14,9 @@
 class LogLoader : public QThread
 {
     Q_OBJECT
+
 public:
+
     /*!
      * \brief Initializes and sets parameters
      * \param path path to the logfile
@@ -39,7 +40,9 @@ private:
     const Configuration::MODE mode;
     const std::shared_ptr<LogContainer> logC;
     const std::shared_ptr<TSQueue> queue;
+
     bool terminate=false;
+
     void loadBatch(const std::string& path, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue, bool callRTAfter);
     void loadStat(const std::string &path, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue);
     void loadRT(unsigned int lineN, std::ifstream &file, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue);

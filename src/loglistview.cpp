@@ -2,30 +2,28 @@
 #include "loglistview.h"
 #include "stringlistmodel.h"
 #include <iostream>
-LogListView::LogListView(QWidget *parent):QListView(parent)
-{
-    this->lineNumberArea=new LineArea(this);
 
+LogListView::LogListView(QWidget *parent):QListView(parent), lineNumberArea(new LineArea(this))
+{
     updateLineNumberAreaWidth();
 }
 
-int LogListView::getSelectedLine()
+int LogListView::getSelectedLine() const
 {
-    if(this->model()==nullptr||this->selectedIndexes().empty())return 0;
+    if(this->model()==nullptr || this->selectedIndexes().empty() )return 0;
     return this->selectedIndexes().first().row();
 }
 
 
-int LogListView::lineNumberAreaWidth()
+int LogListView::lineNumberAreaWidth() const
 {
     if(this->model()==nullptr)return 0;
     int digits = 1;
-    int fetched;
-    fetched =this->model()->rowCount();
+    const auto fetched =this->model()->rowCount();//gui row count
 
     int max = (fetched>0)?fetched:1;
     const int scaleBy=10;
-    while (max >= scaleBy) {
+    while (max >= scaleBy) {//number of digits is how many times it can be divided by 10 +1
         max /= scaleBy;
         ++digits;
     }
@@ -41,7 +39,7 @@ void LogListView::updateLineNumberAreaWidth()
 }
 
 
-void LogListView::updateLineNumberArea(const QRect &rect, int dy)
+void LogListView::updateLineNumberArea(const QRect &rect, const int dy)
 {
     if (dy)
         lineNumberArea->scroll(0, dy);//if change in y, scroll

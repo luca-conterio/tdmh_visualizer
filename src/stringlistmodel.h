@@ -2,7 +2,6 @@
 #define STRINGLISTMODEL_H
 
 #include <QAbstractListModel>
-#include <vector>
 #include <QListView>
 
 /*!
@@ -11,7 +10,8 @@
  */
 class StringListModel : public QAbstractListModel
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
 
     /*!
@@ -20,7 +20,6 @@ public:
      */
     StringListModel(QListView *parent=nullptr);
 
-    // QAbstractItemModel interface
     /*!
      * \brief rowCount returns the row count of inserted(not necessarily in view yet) lines
      * \param parent parent index
@@ -35,26 +34,6 @@ public:
      * \return the QString representation of the line
      */
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole ) const override;
-
-
-private:
-    bool realt=false;
-    bool batchUpdateDisabled=false;
-    int fetchedStrings=1;
-    std::vector<std::string*> strList;
-    const int initBatchSize=1000;
-    const int batchIncreaseDivisor=10;
-    int batchSize;
-    QListView * listParent;
-public slots:
-    /*!
-     * \brief addString appends a vector of lines to the storage, without updating the view
-     * \param str the vector of strings
-     */
-    void addString(std::vector<std::string *>str);
-
-    // QAbstractItemModel interface
-public:
 
     /*!
      * \brief fetchMore if there are lines not inserted in the view, inserts them in batches of incremental size
@@ -84,6 +63,29 @@ public:
      * \brief disableBatchUpdates disables view updates until goRealTime() is called
      */
     void disableBatchUpdates();
+
+private:
+    const int initBatchSize=1000;
+    const int batchIncreaseDivisor=10;
+
+    bool realt=false;
+    bool batchUpdateDisabled=false;
+
+    int fetchedStrings=1;
+    std::vector<std::string*> strList;
+
+    int batchSize;
+    QListView * const listParent;
+
+public slots:
+    /*!
+     * \brief addString appends a vector of lines to the storage, without updating the view
+     * \param str the vector of strings
+     */
+    void addString(const std::vector<std::string *> str);
+
+
+
 signals:
 
     /*!

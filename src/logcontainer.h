@@ -16,8 +16,10 @@ private:
 
     //Topology
     const std::string prefix="[U] Topo ";
+
     std::mutex storeMutex;
     std::vector<std::unique_ptr<std::vector<LogLine>>> store;
+
     /*!
      * \brief toBoolVec transforms a vector of chars in a vector of bools, characters different from '0' and '1' are translated to 0
      * \param mask input mask as a vector of chars
@@ -25,23 +27,35 @@ private:
      */
     std::unique_ptr<std::vector<bool>> toBoolVec(const std::vector<char> &mask) const;
 
+
+    /*!
+     * \brief updateMatSize updates matrices sizes to the new maximum
+     * \param newCount new maximum
+     */
     void updateMatSize(unsigned int newCount);
 
     //Stat
-    unsigned int tempThresh=0;
+    unsigned int tempThresh=0;//Line threshold for the timed probabilities
     unsigned int maxNode=0;
+
+    //Accumulator matrices
     std::vector<std::vector<unsigned long>> timedMat;
     std::vector<std::vector<unsigned long>> untimedMat;
 
+    //Frequency matrices
     std::vector<std::vector<double>> timedPercMat;
     std::vector<std::vector<double>> untimedPercMat;
 
+
+    //Timed analysis variables
     unsigned long firstTimestamp= ULONG_MAX;
     unsigned long lastTimestamp=0;
     unsigned long currentTimestamp=0;
     std::set<std::pair<unsigned int, unsigned int>> currentLinks;
 
+    //Untimed analysis variables
     unsigned int emittedTopologies=0;
+
 public:
 
     /*!
@@ -50,10 +64,6 @@ public:
      */
     LogContainer(unsigned int );
 
-    /*LogContainer(const LogContainer &oth)=delete ;
-    LogContainer &operator =(const LogContainer&) = delete;
-    LogContainer(const LogContainer &&oth)=delete;
-    LogContainer &operator =(const LogContainer&&) = delete;*/
     /*!
      * \brief addLine adds a line to the store
      * \param nodeId id of the node the line refers to

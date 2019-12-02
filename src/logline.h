@@ -22,12 +22,12 @@ private:
     /*!
      * \brief strongMask pointer to a bitvector containing the mask of strong links
      */
-    const std::unique_ptr<std::vector<bool>> strongMask;
+    const std::unique_ptr<const std::vector<bool>> strongMask;
 
     /*!
      * \brief weakMask pointer to a bitvector containing the mask of weak links
      */
-    const std::unique_ptr<std::vector<bool>> weakMask;
+    const std::unique_ptr<const std::vector<bool>> weakMask;
 
 public:
     /*!

@@ -3,8 +3,6 @@
 #include "logloader.h"
 
 #include <iostream>
-
-
 #include <QtWidgets>
 #include <mainwindow.h>
 /*! \file */

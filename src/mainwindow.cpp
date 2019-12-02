@@ -2,7 +2,7 @@
 #include "mainwindow.h"
 
 #include <QDesktopWidget>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <thread>
 #include <QStatusBar>
 #include <utility>
@@ -11,17 +11,18 @@
 #include <QStringListModel>
 #include <QCoreApplication>
 
-void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* parent,int linePerIter,int sleepTime)
+void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* parent,const int linePerIter,const int sleepTime)
 {
     parent->showStatusMessage("Reading in batchmode");
     bool valid=true;
     std::string *buf;
     std::vector<std::string*> str;
+
     while(valid&&tsq->isBatch()){
         for(int i=0;i<linePerIter;i++){
             buf=tsq->pop(valid,false);
             if(!valid){
-                if(!tsq->isBroken()){
+                if(!tsq->isBroken()){//if hit empty queue, keep going
                     valid=true;
                 }
                 break;
@@ -34,9 +35,11 @@ void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* 
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
     }
+
     parent->showStatusMessage("Reading in realtime mode");
     parent->model->goRealTime();
     valid=true;
+
     while(valid){
         for(int i=0;i<linePerIter;i++){
             buf=tsq->pop(valid,false);
@@ -58,23 +61,22 @@ void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* 
 
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent), centralW(new QWidget(this)),gCont(new GraphContainer(this)),listW(new LogListView(this)),model(new StringListModel(listW))
 {
-    gCont=new GraphContainer(this);
+
     this->setWindowTitle("TDMH Log Visualizer");
     this->setStyleSheet("QMainWindow {background: 'yellow';}");
     const double screenPercentage=0.7;
     resize(QDesktopWidget().availableGeometry(this).size() * screenPercentage);
 
-    auto *mainWindowLayout = new QHBoxLayout;
-    auto * splitter=new QSplitter(Qt::Horizontal);
+    auto * const mainWindowLayout = new QHBoxLayout;
+    auto * const splitter=new QSplitter(Qt::Horizontal);
 
     //Init view
-    listW=new LogListView(this);
     listW->setUniformItemSizes(true);
 
     //Init model and link to view
-    model=new StringListModel(listW);
     listW->setModel(model);
     connect(listW->selectionModel(),
           SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -88,11 +90,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     //Set splitter as main widget
     mainWindowLayout->addWidget(splitter);
-    centralW.setLayout(mainWindowLayout);
-    this->setCentralWidget(&centralW);
+    centralW->setLayout(mainWindowLayout);
+    this->setCentralWidget(centralW);
 
-    fileToolbar = addToolBar(tr("File"));
-    //fileToolbar.addAction(newAct);
     statusBar()->showMessage(tr("Ready"));
 }
 
@@ -112,7 +112,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMainWindow::closeEvent(event);
     if(ts!=nullptr)ts->breakQueue();
-    textThread->detach();//TODO better than this
+    textThread->detach();
     lld->stop();
 }
 

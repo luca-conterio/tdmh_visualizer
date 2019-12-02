@@ -28,6 +28,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    LogListView * lV=nullptr;
+
+    //Parent pointer without casting to generic QWidget
+    LogListView * const lV=nullptr;
 };
 #endif // LINEAREA_H
