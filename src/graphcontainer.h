@@ -22,7 +22,8 @@ private:
     std::vector<QGraphicsLineItem*> lines;
     QPen weakPen;
     QPen strongPen;
-
+    bool stat=false;
+    const qreal dashCycleSize=10.0;
 public:
     /*!
      * \brief GraphContainer constructs a new View and scene

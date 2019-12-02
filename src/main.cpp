@@ -43,9 +43,7 @@ int main(int argc, char *argv[])
 
     auto *mW=new MainWindow();
     mW->show();
-    mW->setConfig(cfg,logC,lld);
-    mW->setStyleSheet("QMainWindow {background: 'yellow';}");
-    mW->setQueue(tsq);
+    mW->setConfig(cfg,logC,lld,tsq);
 
     lld->load();
 

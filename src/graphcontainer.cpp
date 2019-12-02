@@ -85,37 +85,69 @@ void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<L
                     QPen(), QBrush(Qt::red));*/
         circleVect.emplace_back(i,list[i].first,list[i].second,scene);
     }
+
+    stat=(c.getMode()==Configuration::STAT);
     std::cout<<"Configured graph with "<<circleVect.size()<<" elements"<<std::endl;
 
 }
 
 void GraphContainer::updateGraph(unsigned int lineN)
 {
+
     for(auto line:lines){
         scene->removeItem(line);
         delete line;
     }
     lines.clear();
 
-    QPen pen;
-    for(auto g1:circleVect){
-        LogLine l=lC->findLine(g1.getI(),lineN);
-        for(auto g2:circleVect){
-            if(l.getStrongMask(g2.getI())){
-                pen=strongPen;
-            }else if(l.getWeakMask(g2.getI())){
-                pen=weakPen;
-            }else{
-                continue;
+    if(stat){//TODO switch timed/untimed
+        QPen pen=weakPen;
+        auto matrix=lC->getAvail(lineN<=lC->getTempThresh());
+        auto nodeCount=matrix.size();
+        for(size_t i=0;i<nodeCount;i++){
+            for(size_t j=i;j<nodeCount;j++){
+                auto* line=new QGraphicsLineItem(circleVect.at(i).getX(),circleVect.at(i).getY()
+                                                 ,circleVect.at(j).getX(),circleVect.at(j).getY()
+                                                 );
+
+                QVector<qreal> dashes;
+                qreal total=dashCycleSize;
+                //std::cout<<"Prob "<<i<<" "<<j<<" "<<matrix[i][j]<<std::endl;
+                qreal length=(matrix[i][j])*total; //Percentage of total
+                qreal space = total-length;
+                dashes << length<<space ;
+                if(lineN<=lC->getTempThresh())pen.setColor(Qt::blue);
+
+                pen.setDashPattern(dashes);
+                line->setPen(pen);
+
+                this->scene->addItem(line);
+                lines.push_back(line);
+            }
+        }
+    }else{
+
+
+        QPen pen;
+        for(auto g1:circleVect){
+            LogLine l=lC->findLine(g1.getI(),lineN);
+            for(auto g2:circleVect){
+                if(l.getStrongMask(g2.getI())){
+                    pen=strongPen;
+                }else if(l.getWeakMask(g2.getI())){
+                    pen=weakPen;
+                }else{
+                    continue;
+                }
+
+                auto* line=new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
+                line->setPen(pen);
+                this->scene->addItem(line);
+                lines.push_back(line);
+
             }
 
-            auto* line=new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
-            line->setPen(pen);
-            this->scene->addItem(line);
-            lines.push_back(line);
-
         }
-
     }
 }
 

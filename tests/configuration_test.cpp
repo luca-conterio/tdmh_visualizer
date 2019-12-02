@@ -1,13 +1,5 @@
 #include "configuration_test.h"
 
-ConfigurationTest::ConfigurationTest()
-{
-
-}
-
-ConfigurationTest::~ConfigurationTest()
-{
-}
 
 void ConfigurationTest::test_emptyConfig()
 {

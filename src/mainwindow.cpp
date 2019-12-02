@@ -53,17 +53,6 @@ void MainWindow::pollTextThread(const std::shared_ptr<TSQueue>& tsq,MainWindow* 
             str.clear();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-        /*buf=tsq->pop(valid,true);
-        if(!valid){
-            if(!tsq->isBroken()){
-                valid=true;
-            }
-            continue;
-        }
-        str.push_back(buf);
-        emit parent->newLineAvailable(str);
-        str.clear();
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime*5));*/
     }
     parent->showStatusMessage("Done parsing input");
 
@@ -73,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     gCont=new GraphContainer(this);
     this->setWindowTitle("TDMH Log Visualizer");
+    this->setStyleSheet("QMainWindow {background: 'yellow';}");
     const double screenPercentage=0.7;
     resize(QDesktopWidget().availableGeometry(this).size() * screenPercentage);
 
@@ -110,7 +100,7 @@ void MainWindow::setQueue(const std::shared_ptr<TSQueue>& tsq)
 {
     if(textThread!=nullptr)return;
     this->ts=tsq;
-    if(c.getBatchFirst()){
+    if(c.getBatchFirst() || c.getMode()==Configuration::STAT){
         model->disableBatchUpdates();
         linePerIter=INT_MAX;
         sleepTime=sleepTime*2;
@@ -126,7 +116,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     lld->stop();
 }
 
-void MainWindow::setConfig(const Configuration& c, const std::shared_ptr<LogContainer> &gC, std::shared_ptr<LogLoader> lld)
+void MainWindow::setConfig(const Configuration& c, const std::shared_ptr<LogContainer> &gC, std::shared_ptr<LogLoader> lld,const std::shared_ptr<TSQueue> &tsq)
 {
 
     gCont->configGraph(c,gC);
@@ -134,6 +124,7 @@ void MainWindow::setConfig(const Configuration& c, const std::shared_ptr<LogCont
     qRegisterMetaType<std::vector<std::string*>>("std::vector<std::string*>");
     connect(this, &MainWindow::newLineAvailable, model, &StringListModel::addString);
     this->c=c;
+    this->setQueue(tsq);
 }
 
 void MainWindow::showStatusMessage(const QString& str)

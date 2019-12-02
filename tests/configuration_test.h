@@ -9,8 +9,6 @@ class ConfigurationTest : public QObject
     Q_OBJECT
 
 public:
-    ConfigurationTest();
-    ~ConfigurationTest();
 
 private:
     Configuration c;

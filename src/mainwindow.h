@@ -35,6 +35,12 @@ private:
     const int defaultSleepTime=200;
     int linePerIter=defaultLinePerIter;
     int sleepTime=defaultSleepTime;
+
+    /*!
+     * \brief setQueue sets the queue where the text will be polled from and starts the loader thread
+     * \param tsq the ts queue
+     */
+    void setQueue(const std::shared_ptr<TSQueue>&);
 public:
     /*!
      * \brief MainWindow Constructor
@@ -42,11 +48,6 @@ public:
      */
     MainWindow(QWidget *parent = nullptr);
 
-    /*!
-     * \brief setQueue sets the queue where the text will be polled from and starts the thread
-     * \param tsq the ts queue
-     */
-    void setQueue(const std::shared_ptr<TSQueue>&);
 
     /*!
      * \brief closeEvent extends the inherited method to break the pipe
@@ -59,8 +60,9 @@ public:
      * \param c the configuration
      * \param gC the GraphContainer pointer
      * \param lld pointer to the loader
+     * \param tsq the queue linked to the loader
      */
-    void setConfig(const Configuration& c, const std::shared_ptr<LogContainer>& gC, std::shared_ptr<LogLoader> lld);
+    void setConfig(const Configuration& c, const std::shared_ptr<LogContainer>& gC, std::shared_ptr<LogLoader> lld,const std::shared_ptr<TSQueue>& tsq);
 
     /*!
      * \brief showStatusMessage shows a message in the status bar

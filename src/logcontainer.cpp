@@ -2,6 +2,12 @@
 #include <iostream>
 #include <algorithm>
 #include <regex>
+
+unsigned int LogContainer::getTempThresh() const
+{
+    return tempThresh;
+}
+
 std::unique_ptr<std::vector<bool> > LogContainer::toBoolVec(const std::vector<char> &mask) const
 {
     auto out=std::make_unique<std::vector<bool>>(mask.size());
@@ -56,44 +62,6 @@ unsigned int LogContainer::getSize()
 
 void LogContainer::process(unsigned int lineN,const std::string &line)
 {
-
-    //Regex works but is Really Really slow
-    /*bool initWeak=false;
-    std::sregex_iterator declare_begin;
-    auto declare_end = std::sregex_iterator();
-
-    //[U] Topo 000: [0000000000000000][0000000000000000]
-    std::regex weakP(R"(^\[U\] Topo ([0-9][0-9][0-9]): \[([0-9]+)\]\[([0-9]+)\])");
-
-    declare_begin = std::sregex_iterator(line.begin(), line.end(), weakP);
-    if(declare_begin==declare_end){
-        initWeak=true;
-        std::regex strongP(R"(^\[U\] Topo ([0-9][0-9][0-9]): \[([0-9]+)\])");
-        declare_begin = std::sregex_iterator(line.begin(), line.end(), strongP);
-        if(declare_begin==declare_end)return;
-    }
-
-    for (std::sregex_iterator i = declare_begin; i != declare_end; ++i) {
-        std::smatch match = *i;
-        //std::cout << match[1] << " is " << match[2] << " "<<match[3]<<std::endl;
-
-        std::string strong=match[2].str();
-        std::string weak;
-        if(initWeak){
-            weak=std::string(strong.size(), '0');
-        }else{
-            weak=match[3].str();
-        }
-        unsigned int index=static_cast<unsigned int>(std::stoi(match[1].str()));
-
-
-        std::vector<char> dataS(strong.begin(),strong.end());
-        std::vector<char> dataW(weak.begin(),weak.end());
-
-        this->addLine(index,lineN,dataS,dataW);
-
-    }*/
-
     //[U] Topo 000: [0000000000000000][0000000000000000]
 
     auto res = std::mismatch(prefix.begin(), prefix.end(), line.begin());
@@ -111,7 +79,7 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
         split.push_back(intermediate);
     }
     if(split.size()<3)return;
-    //if(split[0]=="[U]" && split[1]=="Topo"){
+
     split[2].pop_back();//Remove ':'
     try {
         //std::cout<<line<<" "<<lineN<<std::endl;
@@ -145,9 +113,115 @@ void LogContainer::process(unsigned int lineN,const std::string &line)
         //Invalid line, ignore
     }
 
-    //}
+}
+
+void LogContainer::processStat( const std::string &line)
+{
+    //Timed
+    auto ntPos=line.find("NT=");
+    if(ntPos!= std::string::npos) {   //tieni ultimo timestamp
+        auto numStr=line.substr(ntPos+3);
+        try {
+            currentTimestamp= std::stoul(numStr);
+        } catch (std::invalid_argument&) {
+
+        }
+    }else if(line.size()>=7 && line[0]=='[' && line[line.size()-2]==']') {//[0 - 1]
+        auto dashPos=line.find('-');
+        auto lastDigitRelativePos= (line.size()-1)-dashPos-2;
+        try {
+            int first= std::stoi(line.substr(1,dashPos-2));
+            int second= std::stoi(line.substr(dashPos+2,lastDigitRelativePos) );
+            currentLinks.insert({first,second});
+
+        } catch (std::invalid_argument&) {
+
+        }
+    }else if(line.find("[SC] Begin Topology") != std::string::npos) {
+        if(firstTimestamp>currentTimestamp) {
+            firstTimestamp=currentTimestamp;    //inizializza current time
+        } else {
+            for(auto p: currentLinks) { //aggiorna ogni link dicendo che è durato dall'ultimo Begin Topology a questo
+                if(p.first>maxNode)updateMatSize(p.first);
+                if(p.second>maxNode)updateMatSize(p.second);
+                //std::cout << p.first<<" "<<p.second<<" "<<maxNode<<std::endl;
+                //std::cout <<timedMat.size()<< " " <<timedMat[p.first].size()<<std::endl;
+                timedMat[p.first][p.second]+=currentTimestamp-lastTimestamp;
+                timedMat[p.second][p.first]+=currentTimestamp-lastTimestamp;
+
+                untimedMat[p.first][p.second]++;
+                untimedMat[p.second][p.first]++;
+            }
+        }
+        currentLinks.clear(); //reset link
+        lastTimestamp=currentTimestamp;
+
+        emittedTopologies++;
+    }
+
 
 }
+
+void LogContainer::setTempThresh(unsigned int value)
+{
+
+    tempThresh = value;
+}
+
+void LogContainer::lastLine()
+{
+    for(auto p: currentLinks) { //Update with last values
+        if(p.first>maxNode)updateMatSize(p.first);
+        if(p.second>maxNode)updateMatSize(p.second);
+
+        timedMat[p.first][p.second]+=currentTimestamp-lastTimestamp;
+        timedMat[p.second][p.first]+=currentTimestamp-lastTimestamp;
+
+        untimedMat[p.first][p.second]++;
+        untimedMat[p.second][p.first]++;
+    }
+
+    std::cout<<"maxNode is "<<maxNode<<std::endl;
+    const auto maxConst=maxNode;
+    const double unDiv=emittedTopologies;
+
+    for(unsigned int i=0;i<=maxConst;i++){
+        timedPercMat.emplace_back(maxNode+1);
+        untimedPercMat.emplace_back(maxNode+1);
+        for(unsigned int j=0;j<=maxConst;j++){
+
+            const double num=timedMat[i][j];
+            const auto div=static_cast<double>( currentTimestamp-firstTimestamp);
+
+            timedPercMat[i][j]= num/div;
+
+            const double unNum=untimedMat[i][j];
+            untimedPercMat[i][j]=unNum/unDiv;
+            //std::cout << i<<" "<<j<<" "<<timedPercMat[i][j]<<" " <<num<<" div is "<<div<<std::endl;
+        }
+    }
+}
+
+std::vector<std::vector<double> > LogContainer::getAvail(bool time)
+{
+    if(time){
+        return timedPercMat;
+    }
+    return untimedPercMat;
+}
+
+void LogContainer::updateMatSize(unsigned int newCount)
+{
+    while(timedMat.size()<=newCount)timedMat.emplace_back(newCount);
+    while(untimedMat.size()<=newCount)untimedMat.emplace_back(newCount);
+
+    for(unsigned int i=0;i<=newCount;i++){
+        while(timedMat[i].size()<=newCount)timedMat[i].push_back(0);
+        while(untimedMat[i].size()<=newCount)untimedMat[i].push_back(0);
+    }
+    this->maxNode=newCount;
+}
+
 
 /*LogContainer::~LogContainer()
 {
