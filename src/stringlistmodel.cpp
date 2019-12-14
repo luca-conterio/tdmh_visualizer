@@ -8,6 +8,12 @@ StringListModel::StringListModel(QListView *parent):QAbstractListModel(parent),l
     batchSize=this->initBatchSize;
 }
 
+StringListModel::~StringListModel()
+{
+    for(auto s:strList)delete s;
+    strList.clear();
+}
+
 int StringListModel::rowCount(const QModelIndex& /*parent*/) const
 {
     //return static_cast<int>(strList.size());

@@ -20,6 +20,9 @@ public:
      */
     StringListModel(QListView *parent=nullptr);
 
+
+    ~StringListModel() override;
+
     /*!
      * \brief rowCount returns the row count of inserted(not necessarily in view yet) lines
      * \param parent parent index

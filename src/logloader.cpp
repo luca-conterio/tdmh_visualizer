@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <QThread>
-
+#include <thread>
 
 LogLoader::LogLoader(const std::string &path, Configuration::MODE mode, const std::shared_ptr<LogContainer> &logC, const std::shared_ptr<TSQueue> &queue):
     path(path),mode(mode),logC(logC),queue(queue)

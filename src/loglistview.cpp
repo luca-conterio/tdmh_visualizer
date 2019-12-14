@@ -36,8 +36,8 @@ int LogListView::lineNumberAreaWidth() const
         max /= scaleBy;
         ++digits;
     }
-    //Space = 3+ digits*maximum digit size + a space separator each 3 characters
-    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * (digits+digits/4);
+    //Space = digits*maximum digit size + a space separator each 3 characters
+    int space = fontMetrics().size(0,"9").width() * (digits+digits/4);
     return space;
 }
 
