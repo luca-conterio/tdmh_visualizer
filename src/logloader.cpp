@@ -8,7 +8,6 @@
 LogLoader::LogLoader(const std::string &path, Configuration::MODE mode, const std::shared_ptr<LogContainer> &logC, const std::shared_ptr<TSQueue> &queue):
     path(path),mode(mode),logC(logC),queue(queue)
 {
-
 }
 
 void LogLoader::load()
@@ -26,8 +25,16 @@ void LogLoader::stop()
 
 void LogLoader::loadBatch(const std::string& path, const std::shared_ptr<LogContainer>& logC,const std::shared_ptr<TSQueue>& queue,const bool callRTAfter)
 {
+    std::cout<<"Reading from "<<path<<std::endl;
     const std::string& fileName(path);
     std::ifstream file(fileName);
+
+    if(!file.is_open()){
+        std::cout<<"Error opening file "<<fileName<<std::endl;
+        queue->breakQueue();
+        return;
+    }
+
     unsigned int lineN=0;
     const clock_t begin = clock();
 

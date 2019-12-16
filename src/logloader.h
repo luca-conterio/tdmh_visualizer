@@ -36,7 +36,7 @@ public:
      */
     void stop();
 private:
-    const std::string& path;
+    const std::string path;
     const Configuration::MODE mode;
     const std::shared_ptr<LogContainer> logC;
     const std::shared_ptr<TSQueue> queue;
