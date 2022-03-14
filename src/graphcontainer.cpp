@@ -14,15 +14,27 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new
     this->setBackgroundBrush(Qt::darkGray);
 
 
-    weakPen.setStyle(Qt::DashDotLine);
+    // weakPen.setStyle(Qt::DashDotLine);
+    // weakPen.setWidth(2);
+    // weakPen.setBrush(Qt::darkGreen);
+    // weakPen.setCapStyle(Qt::RoundCap);
+    // weakPen.setJoinStyle(Qt::RoundJoin);
+
+    // strongPen.setStyle(Qt::SolidLine);
+    // strongPen.setWidth(3);
+    // strongPen.setBrush(Qt::darkBlue);
+    // strongPen.setCapStyle(Qt::RoundCap);
+    // strongPen.setJoinStyle(Qt::RoundJoin);
+
+    weakPen.setStyle(Qt::SolidLine);
     weakPen.setWidth(2);
-    weakPen.setBrush(Qt::darkGreen);
+    weakPen.setBrush(QColor(160,160,255));
     weakPen.setCapStyle(Qt::RoundCap);
     weakPen.setJoinStyle(Qt::RoundJoin);
 
     strongPen.setStyle(Qt::SolidLine);
     strongPen.setWidth(3);
-    strongPen.setBrush(Qt::darkBlue);
+    strongPen.setBrush(QColor(0,0,180));
     strongPen.setCapStyle(Qt::RoundCap);
     strongPen.setJoinStyle(Qt::RoundJoin);
 }
