@@ -21,6 +21,7 @@ private:
     //Default values used if not specified in the configuration file
     int node_count=default_nodes;
     std::string log_path="log.txt";
+    bool log_path_set = false;
     std::string img_path="image.jpg";
     MODE mode=BATCH;
     bool batchFirst=false;
@@ -60,6 +61,8 @@ public:
       * \param ptr path to config file
       */
      void loadCfg(const char *ptr);
+
+     void setLogFilePath(const char *ptr);
 
      /*!
       * \brief getNodeCount node_count getter

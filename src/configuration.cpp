@@ -39,7 +39,9 @@ void Configuration::loadCfg(const char *ptr)
         trim(val);
 
         if(opt=="LOGFILE"){
-            log_path=val;
+            if (!log_path_set) { // otherwise use the command line one
+                log_path=val;
+            }
         }else if(opt=="MODE"){
             if(val=="BATCH"){
                 mode=BATCH;
@@ -77,6 +79,12 @@ void Configuration::loadCfg(const char *ptr)
     // Close the File
     file.close();
     std::cout <<"Finished loading configs"<<std::endl;
+}
+
+void Configuration::setLogFilePath(const char *ptr)
+{   
+    this->log_path = std::string(ptr);
+    this->log_path_set = true;
 }
 
 int Configuration::getNodeCount() const

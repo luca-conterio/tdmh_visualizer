@@ -19,9 +19,14 @@ int main(int argc, char *argv[])
     if(argc==1){
         std::cout << "No configuration file given, using defaults"<<std::endl;
         cfg.loadCfg(nullptr);
-    }else{
-        std::cout<< "Loading file:"<<argv[1]<<std::endl;
+    }else if (argc==2){
+        std::cout<< "Loading file: "<<argv[1]<<std::endl;
         cfg.loadCfg(argv[1]);
+    }else if (argc==3){
+        std::cout<< "Loading file: "<<argv[1]<<std::endl;
+        cfg.loadCfg(argv[1]);
+        std::cout<< "Log file path: "<<argv[2]<<std::endl;
+        cfg.setLogFilePath(argv[2]);
     }
 
     std::cout<< "Loaded "<<cfg.getNodeCount()<<" nodes"<<std::endl;
