@@ -15,7 +15,7 @@ private:
     const size_t i;
     QGraphicsEllipseItem * el;
     QGraphicsTextItem * t;
-    static const int rad=13;
+    static const int rad=12;
 public:
 
     /*!
