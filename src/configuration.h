@@ -24,6 +24,7 @@ private:
     bool log_path_set = false;
     std::string img_path="image.jpg";
     MODE mode=BATCH;
+    bool mode_set = false;
     bool batchFirst=false;
 
     std::vector<std::pair<int,int>> nodeList;
@@ -64,6 +65,8 @@ public:
 
      void setLogFilePath(const char *ptr);
 
+     void setMode(const char *prt);
+
      /*!
       * \brief getNodeCount node_count getter
       * \return the node_count
@@ -99,6 +102,8 @@ public:
       * \return batchFirst flag
       */
      bool getBatchFirst() const;
+
+     void printMode() const;
 };
 
 #endif // CONFIGURATION_H

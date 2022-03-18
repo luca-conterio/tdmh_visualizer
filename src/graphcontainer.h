@@ -32,9 +32,13 @@ private:
     QPen strongPen;
 
     //true if the gui is in stat mode
-    bool stat=false;
+    bool stat = false;
 
-    const qreal dashCycleSize=10.0;
+    const qreal dashCycleSize = 10.0;
+
+    //zoom in and out with ctrl+'+' and ctrl+'-'
+    float scaleFactor = 0.1;
+    
 public:
 
     /*!
@@ -56,7 +60,10 @@ public:
      */
     void configGraph(const Configuration& c, const std::shared_ptr<LogContainer>& lC);
 
+    void zoomIn();
+    void zoomOut();
 
+    void exportToPdf();
 
 public slots:
 

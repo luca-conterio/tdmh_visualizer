@@ -1,49 +1,55 @@
 #include "logloader.h"
 #include "configuration.h"
-#include <fstream>
 #include <vector>
 #include <QThread>
 #include <thread>
 
-LogLoader::LogLoader(const std::string &path, Configuration::MODE mode, const std::shared_ptr<LogContainer> &logC, const std::shared_ptr<TSQueue> &queue):
-    path(path),mode(mode),logC(logC),queue(queue)
+LogLoader::LogLoader(const std::string& path, Configuration::MODE mode, const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>& queue):
+    path(path), mode(mode), logC(logC), queue(queue)
 {
 }
 
 void LogLoader::load()
 {
-    if(this->isRunning())return;
+    if(this->isRunning()) return;
 
     this->start();
 }
 
-void LogLoader::stop()
-{
-    if(queue!=nullptr)queue->breakQueue();
-    this->terminate=true;
-}
-
-void LogLoader::loadBatch(const std::string& path, const std::shared_ptr<LogContainer>& logC,const std::shared_ptr<TSQueue>& queue,const bool callRTAfter)
-{
-    std::cout<<"Reading from "<<path<<std::endl;
+bool LogLoader::openLogFile() {
+    std::cout << "Opening log file: " << path << std::endl;
     const std::string& fileName(path);
-    std::ifstream file(fileName);
+    file = std::ifstream(fileName);
 
-    if(!file.is_open()){
-        std::cout<<"Error opening file "<<fileName<<std::endl;
+    if(!file.is_open()) {
+        std::cout << "Error opening file " << fileName << "\n\n";
         queue->breakQueue();
-        return;
+        return false;
     }
 
-    unsigned int lineN=0;
+    return true;
+}
+
+void LogLoader::stop()
+{
+    if (queue != nullptr)
+        queue->breakQueue();
+
+    this->terminate = true;
+}
+
+void LogLoader::loadBatch(const std::shared_ptr<LogContainer>& logC,const std::shared_ptr<TSQueue>& queue,const bool callRTAfter)
+{
+    std::cout << "Reading log file" << std::endl;
+    unsigned int lineN = 0;
     const clock_t begin = clock();
 
-    auto line= std::string();
-    while (!terminate && getline(file, line)&& !queue->isBroken())
+    auto line = std::string();
+    while (!terminate && getline(file, line) && !queue->isBroken())
     {
         lineN++;
         line.shrink_to_fit();
-        //std::cout<<"Line: "<<*line<<std::endl;
+        //std::cout << "Line: " << *line << std::endl;
         queue->push(new std::string(line));
         logC->process(lineN,line);
     }
@@ -51,32 +57,31 @@ void LogLoader::loadBatch(const std::string& path, const std::shared_ptr<LogCont
     const clock_t end = clock();
     const auto elapsedSeconds = double(end - begin) / CLOCKS_PER_SEC;
 
-    std::cout << "Batch loading done "<<elapsedSeconds<<"s"<<std::endl;
+    std::cout << "Batch loading done " << elapsedSeconds << "s" << std::endl;
 
     if(callRTAfter){
         loadRT(lineN,file,logC,queue);
     }
     file.close();
     queue->breakQueue();
-
 }
 
 inline void printAvail(const bool timed,const std::shared_ptr<LogContainer>&logC,const std::shared_ptr<TSQueue>&queue){
-    unsigned printedCount=1;
+    unsigned printedCount = 1;
 
-    const auto matrix=logC->getAvail(timed);
-    const auto nodeCount=matrix.size();
-    const int hundred=100;
+    const auto matrix = logC->getAvail(timed);
+    const auto nodeCount = matrix.size();
+    const int hundred = 100;
 
-    for(size_t i=0;i<nodeCount;i++){
-        for(size_t j=i;j<nodeCount;j++){
-            if(matrix[i][j]>0.0){
-                std::string *text= new std::string("["
+    for(size_t i = 0; i < nodeCount; i++){
+        for(size_t j = i; j < nodeCount; j++){
+            if(matrix[i][j] > 0.0){
+                std::string *text = new std::string("["
                                                 +std::to_string(i)
                                                 +" - "
                                                 +std::to_string(j)
                                                 +"] = "
-                                                +std::to_string(matrix[i][j]*hundred)
+                                                +std::to_string(matrix[i][j] * hundred)
                                                 +"%"
                                                 );
                 queue->push(text);
@@ -93,14 +98,12 @@ inline void printAvail(const bool timed,const std::shared_ptr<LogContainer>&logC
     }
 }
 
-void LogLoader::loadStat(const std::string &path, const std::shared_ptr<LogContainer>&logC,const std::shared_ptr<TSQueue>&queue)
+void LogLoader::loadStat(const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>& queue)
 {
-    const std::string& fileName(path);
-    std::ifstream file(fileName);
-    unsigned int lineN=0;
-
-    auto line= std::string();
-    while (!terminate && getline(file, line)&& !queue->isBroken())
+    std::cout << "Reading log file" << std::endl;
+    unsigned int lineN = 0;
+    auto line = std::string();
+    while (!terminate && getline(file, line) && !queue->isBroken())
     {
         lineN++;
         line.shrink_to_fit();
@@ -108,7 +111,7 @@ void LogLoader::loadStat(const std::string &path, const std::shared_ptr<LogConta
 
         logC->processStat(line);
     }
-    std::cout<<"Finished building statistics"<<std::endl;
+    std::cout << "Finished building statistics" << std::endl;
     file.close();
 
     //Signal to Log Container that the file is over
@@ -117,21 +120,21 @@ void LogLoader::loadStat(const std::string &path, const std::shared_ptr<LogConta
     //Output stats to text
     queue->push(new std::string("Timed availabilities"));
     printAvail(true,logC,queue);
-    queue->push(new std::string("Non Timed availabilities"));
+    queue->push(new std::string("Non-timed availabilities"));
     printAvail(false,logC,queue);
 
     queue->breakQueue();
 }
 
-void LogLoader::loadRT(unsigned int lineN,std::ifstream &file, const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>&queue)
+void LogLoader::loadRT(unsigned int lineN, std::ifstream& file, const std::shared_ptr<LogContainer>& logC, const std::shared_ptr<TSQueue>& queue)
 {
     queue->waitEmpty();
     queue->toRT();
 
-    std::cout<<"Beginning RTime file watching"<<std::endl;
+    std::cout << "Beginning real time file watching" << std::endl;
 
     std::string line;
-    while (!terminate && !queue->isBroken())//Will get terminated when stop() is called
+    while (!terminate && !queue->isBroken()) // Will get terminated when stop() is called
     {
         while (std::getline(file, line)) {
             lineN++;
@@ -141,7 +144,7 @@ void LogLoader::loadRT(unsigned int lineN,std::ifstream &file, const std::shared
         file.clear(); //Clear eof status and wait for a new line
         std::this_thread::sleep_for(std::chrono::milliseconds(this->realTimeSleep));
     }
-    std::cout <<"Ending RTime file watching"<<std::endl;
+    std::cout << "Ending real time file watching" << std::endl;
 
 }
 
@@ -149,15 +152,15 @@ void LogLoader::run()
 {
     switch(mode){
         case Configuration::MODE::BATCH:
-            loadBatch(path,logC,queue,false);
-
+            loadBatch(logC, queue, false);
         break;
         case Configuration::MODE::RTIME:
-            loadBatch(path,logC,queue,true);
+            loadBatch(logC, queue, true);
         break;
         case Configuration::MODE::STAT:
-            loadStat(path,logC,queue);
+            loadStat(logC, queue);
         break;
-
+        default:
+            std::cout << "Invalid mode specified, possible modes are: BATCH, RTIME, STAT" << std::endl;
     }
 }

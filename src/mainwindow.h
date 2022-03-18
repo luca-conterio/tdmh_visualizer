@@ -22,19 +22,20 @@ class MainWindow : public QMainWindow
 
 private:
     QWidget * const centralW;
-    //QToolBar *fileToolbar=nullptr;
-    GraphContainer * const gCont=nullptr;
-    LogListView * const listW=nullptr;
-    StringListModel * const model=nullptr;
-    std::unique_ptr<std::thread> textThread=nullptr;
-    std::shared_ptr<TSQueue> ts=nullptr;
-    std::shared_ptr<LogLoader> lld=nullptr;
+    //QToolBar *fileToolbar = nullptr;
+    GraphContainer * const gCont = nullptr;
+    LogListView * const listW = nullptr;
+    StringListModel * const model = nullptr;
+    std::unique_ptr<std::thread> textThread = nullptr;
+    std::shared_ptr<TSQueue> ts = nullptr;
+    std::shared_ptr<LogLoader> lld = nullptr;
     Configuration c;
-    static void pollTextThread(const std::shared_ptr<TSQueue>&tsq, MainWindow *parent, int linePerIter, int sleepTime);
-    const int defaultLinePerIter=100000;
-    const int defaultSleepTime=200;
-    int linePerIter=defaultLinePerIter;
-    int sleepTime=defaultSleepTime;
+    static void pollTextThread(const std::shared_ptr<TSQueue>& tsq, MainWindow* parent, int linePerIter, int sleepTime);
+    const int defaultLinePerIter = 100000;
+    const int defaultSleepTime = 200;
+    int linePerIter = defaultLinePerIter;
+    int sleepTime = defaultSleepTime;
+    QString statusMessage;
 
     /*!
      * \brief setQueue sets the queue where the text will be polled from and starts the loader thread
@@ -69,6 +70,8 @@ public:
      * \param str message to be sent
      */
     void showStatusMessage(const QString& str);
+
+    void exportToPdf();
 
 signals:
 

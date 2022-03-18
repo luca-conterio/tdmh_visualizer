@@ -14,6 +14,11 @@ void Configuration::loadCfg(const char *ptr)
 
     std::ifstream file(fileName);
 
+    if(!file.is_open()) {
+        std::cout << "Error opening configuration file " << fileName << "\n\n";
+        exit(0);
+    }
+
     std::string line;
     while (getline(file, line))
     {
@@ -43,20 +48,23 @@ void Configuration::loadCfg(const char *ptr)
                 log_path=val;
             }
         }else if(opt=="MODE"){
-            if(val=="BATCH"){
-                mode=BATCH;
-            }else if(val=="RTIME"){
-                mode=RTIME;
-            }else if(val=="STAT"){
-                mode=STAT;
-            }else{
-                std::cout <<"Unrecognized mode: "<<val<<std::endl;
+            if (!mode_set) { // otherwise use the command line one
+                if(val=="BATCH"){
+                    mode=BATCH;
+                }else if(val=="RTIME"){
+                    mode=RTIME;
+                }else if(val=="STAT"){
+                    mode=STAT;
+                }else{
+                    std::cout << "Invalid mode specified, possible modes are: BATCH, RTIME, STAT \n\n";
+                    exit(0);
+                }
             }
         }else if(opt=="NODECOUNT"){
             try {
                 node_count=std::stoi(val);
             } catch (std::invalid_argument&) {
-                std::cout <<"Invalid node count: "<<val<<std::endl;
+                std::cout << "Invalid node count: " << val << std::endl;
             }
         }else if(opt=="IMAGE"){
             img_path=val;
@@ -72,19 +80,39 @@ void Configuration::loadCfg(const char *ptr)
             }
 
         }else{
-            std::cout<<"Unrecognized option "<<opt<<std::endl;
+            std::cout << "Unrecognized option " << opt << std::endl;
         }
 
     }
     // Close the File
     file.close();
-    std::cout <<"Finished loading configs"<<std::endl;
+    std::cout << "Finished loading configs" << std::endl;
 }
 
 void Configuration::setLogFilePath(const char *ptr)
 {   
     this->log_path = std::string(ptr);
     this->log_path_set = true;
+}
+
+void Configuration::setMode(const char *ptr) 
+{
+    this->mode_set = true;
+    std::string mode_string = std::string(ptr);
+    if (mode_string == "BATCH") {
+        mode = Configuration::MODE::BATCH;
+    }
+    else if (mode_string == "RTIME") {
+        mode = Configuration::MODE::RTIME;
+    }
+    else if (mode_string == "STAT") {
+        mode = Configuration::MODE::STAT;
+    }
+    else {
+        this->mode_set = false;
+        std::cout << "Invalid mode specified, possible modes are: BATCH, RTIME, STAT \n\n";
+        exit(0);
+    }
 }
 
 int Configuration::getNodeCount() const
@@ -116,6 +144,22 @@ std::vector<std::pair<int, int> > Configuration::getNodeList() const
 bool Configuration::getBatchFirst() const
 {
     return batchFirst;
+}
+
+void Configuration::printMode() const {
+    switch(mode){
+        case Configuration::MODE::BATCH:
+            std::cout << "Mode: BATCH" << std::endl;
+        break;
+        case Configuration::MODE::RTIME:
+            std::cout << "Mode: RTIME" << std::endl;
+        break;
+        case Configuration::MODE::STAT:
+            std::cout << "Mode: STAT" << std::endl;
+        break;
+        default:
+            std::cout << "Mode: INVALID" << std::endl;
+    }
 }
 
 void Configuration::pushNode(const size_t i, const int x, const int y){
@@ -154,10 +198,10 @@ void Configuration::processTuple(const std::string& t)
             pushNode(static_cast<size_t>(ni),nx,ny);
             return;
         } catch (std::invalid_argument&) {
-            //std::cout <<"Invalid tuple "<<t<<std::endl;
+            //std::cout << "Invalid tuple " << t << std::endl;
         }
     }
-    std::cout <<"Invalid tuple "<<t<<std::endl;
+    std::cout << "Invalid tuple " << t << std::endl;
 }
 
 static inline void ltrim(std::string &s) {

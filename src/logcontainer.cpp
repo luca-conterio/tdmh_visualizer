@@ -187,7 +187,7 @@ void LogContainer::lastLine()
         untimedMat[p.second][p.first]++;
     }
 
-    std::cout<<"maxNode is "<<maxNode<<std::endl;
+    //std::cout<<"maxNode is "<<maxNode<<std::endl;
     const auto maxConst=maxNode;
     const double unDiv=emittedTopologies;
 

@@ -4,6 +4,7 @@
 #include "logcontainer.h"
 #include "tsqueue.h"
 #include <string>
+#include <fstream>
 #include <configuration.h>
 #include <QThread>
 
@@ -31,8 +32,10 @@ public:
      */
     void load();
 
+    bool openLogFile();
+
     /*!
-     * \brief stop stop stops the reading thread(if not already terminated) at the next iteration
+     * \brief stop stops the reading thread (if not already terminated) at the next iteration
      */
     void stop();
 private:
@@ -41,12 +44,14 @@ private:
     const std::shared_ptr<LogContainer> logC;
     const std::shared_ptr<TSQueue> queue;
 
-    bool terminate=false;
+    bool terminate = false;
+    bool logError = false;
+    std::ifstream file;
 
-    void loadBatch(const std::string& path, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue, bool callRTAfter);
-    void loadStat(const std::string &path, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue);
+    void loadBatch(const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue, const bool callRTAfter);
+    void loadStat(const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue);
     void loadRT(unsigned int lineN, std::ifstream &file, const std::shared_ptr<LogContainer>&logC, const std::shared_ptr<TSQueue>& queue);
-    const int realTimeSleep=1000;
+    const int realTimeSleep = 1000;
     // QThread interface
 protected:
     /*!

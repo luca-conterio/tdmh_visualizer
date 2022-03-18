@@ -1,4 +1,4 @@
-# tdmh_visualizer
+# TDMH Visualizer
 
 This program helps visualize logs. A graph with the nodes put on the background image is displayed. 
 When moving the cursor inside the file, the graph is updated to show the strong (blue solid) and weak (green dotted) links up to that moment.
@@ -20,11 +20,7 @@ e.g. `qtchooser -install qt5.12.6 /opt/Qt/5.12.6/gcc_64/bin/qmake`
 
 then `export Q_SELECT=qt5.12.6`
 
-
 Run .sh with `debug` argument to generate a debug build
-
-
-
 
 ## Running
 The program accepts as first argument the path to the configuration file, a commented example configuration file is in the repository
@@ -38,3 +34,6 @@ The visualizer operates in 3 different modes:
 
 If `BATCHFIRST` is specified in the configuration file, the program processes the entire log and then updates the gui. 
 If not specifies it updates the gui every time the bottom of the scroll bar is reached, so that the log can be inspected while it is being loaded
+
+## Usage
+TODO

@@ -1,5 +1,6 @@
 #QT += quick
 QT += widgets
+QT += printsupport
 CONFIG += c++14
 TEMPLATE = app
 TARGET = src

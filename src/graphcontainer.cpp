@@ -5,6 +5,7 @@
 #include <QTimeLine>
 #include <QWheelEvent>
 #include <QPixmap>
+#include <QPrinter>
 #include <QGraphicsPixmapItem>
 #include <iostream>
 
@@ -37,21 +38,24 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new
     strongPen.setBrush(QColor(0,0,180));
     strongPen.setCapStyle(Qt::RoundCap);
     strongPen.setJoinStyle(Qt::RoundJoin);
+
+    //scale(currScale, currScale);
 }
 
 
 void GraphContainer::wheelEvent(QWheelEvent* e) {
 
-    if ((e->modifiers()&Qt::ControlModifier) == Qt::ControlModifier){//If control is pressed(otherwise it interferes with scrolling)
+    //If control is pressed(otherwise it interferes with scrolling)
+    if ((e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier) {
         QPoint  posAbsolute  = e->pos();
         QPointF posRelative = this->mapToScene(posAbsolute);
         double angle = e->angleDelta().y();
 
         double sc;
-        const int fullAngle=360;
-        const double scalingFactor=0.1; //Increase this to scroll faster
+        const int fullAngle = 360;
+        const double scalingFactor = 0.1; //Increase this to scroll faster
 
-        sc= 1+ (angle/fullAngle *scalingFactor);
+        sc = 1 + (angle / fullAngle * scalingFactor);
         this->scale(sc, sc);
 
         double w = this->viewport()->width();
@@ -65,7 +69,7 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
         double lf = posRelative.x() - posAbsolute.x() * wrel / w;
         double tf = posRelative.y() - posAbsolute.y() * hrel / h;
 
-        this->ensureVisible(lf, tf, wrel, hrel, 0, 0);//set viewport
+        this->ensureVisible(lf, tf, wrel, hrel, 0, 0); //set viewport
 
         QPointF newPos = this->mapToScene(posAbsolute);
 
@@ -74,30 +78,31 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
                                    QSizeF(wrel, hrel)), 0, 0);
 
         e->accept();
-    }else{
+    }
+    else {
         QGraphicsView::wheelEvent(e);
     }
 }
 
 void GraphContainer::configGraph(const Configuration& c, const std::shared_ptr<LogContainer>& lC)
 {
-    this->lC=lC;
+    this->lC = lC;
     const QString url = QString::fromStdString(c.getImgPath());
     QPixmap bgImg(url);
 
     QGraphicsPixmapItem pixItem(bgImg);
     scene->addPixmap(bgImg);
 
-    scene->setSceneRect(bgImg.rect());//Fit image to scene
+    scene->setSceneRect(bgImg.rect()); //Fit image to scene
 
-    const auto list=c.getNodeList();
-    for(size_t i=0;i<list.size();i++){
+    const auto list = c.getNodeList();
+    for(size_t i = 0; i < list.size(); i++){
         //GraphCircle constructor will take care of drawing the circles
-        circleVect.emplace_back(i,list[i].first,list[i].second,scene);
+        circleVect.emplace_back(i, list[i].first, list[i].second, scene);
     }
 
-    stat=(c.getMode()==Configuration::STAT);
-    std::cout<<"Configured graph with "<<circleVect.size()<<" elements"<<std::endl;
+    stat = (c.getMode() == Configuration::STAT);
+    std::cout << "Configured graph with " << circleVect.size() << " elements" << std::endl;
 
 }
 
@@ -105,31 +110,31 @@ void GraphContainer::updateGraph(const unsigned int lineN)
 {
 
     //Remove old lines
-    for(auto line:lines){
+    for(auto line : lines){
         scene->removeItem(line);
         delete line;
     }
     lines.clear();
 
     if(stat){
-        QPen pen=weakPen;
+        QPen pen = weakPen;
 
         //Pull matrix corresponding to selected line number
-        const auto matrix=lC->getAvail(lineN<=lC->getTempThresh());
-        const auto nodeCount=matrix.size();
+        const auto matrix = lC->getAvail(lineN <= lC->getTempThresh());
+        const auto nodeCount = matrix.size();
 
         //Using only higher matrix
-        for(size_t i=0;i<nodeCount;i++){
-            for(size_t j=i;j<nodeCount;j++){
+        for(size_t i = 0; i < nodeCount; i++){
+            for(size_t j = i; j < nodeCount; j++){
                 auto* line=new QGraphicsLineItem(circleVect.at(i).getX(),circleVect.at(i).getY()
                                                  ,circleVect.at(j).getX(),circleVect.at(j).getY()
                                                  );
 
                 QVector<qreal> dashes;
-                qreal total=dashCycleSize;
-                qreal length=(matrix[i][j])*total; //Percentage of total filled with line
-                qreal space = total-length; //Remaining space is empty
-                dashes << length<<space ;
+                qreal total = dashCycleSize;
+                qreal length = matrix[i][j] * total; //Percentage of total filled with line
+                qreal space = total - length; //Remaining space is empty
+                dashes << length << space;
 
                 //Change color if timed or untimed
                 if(lineN<=lC->getTempThresh())pen.setColor(Qt::blue);
@@ -141,34 +146,87 @@ void GraphContainer::updateGraph(const unsigned int lineN)
                 lines.push_back(line);
             }
         }
-    }else{
-
-
+    }
+    else {
         QPen pen;
-        for(auto g1:circleVect){
+        for(auto g1 : circleVect){
             //Find outgoing arcs from each node
-            const LogLine l=lC->findLine(g1.getI(),lineN);
+            const LogLine l = lC->findLine(g1.getI(), lineN);
 
             for(auto g2:circleVect){
 
                 //If this node corrresponds to weak or strong arcs outgoing from g1
-                if(l.getStrongMask(g2.getI())){
-                    pen=strongPen;
-                }else if(l.getWeakMask(g2.getI())){
-                    pen=weakPen;
-                }else{
+                if (l.getStrongMask(g2.getI())) {
+                    pen = strongPen;
+                }
+                else if (l.getWeakMask(g2.getI())) {
+                    pen = weakPen;
+                }
+                else {
                     continue;
                 }
 
-                auto* line=new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
+                auto* line = new QGraphicsLineItem(g1.getX(),g1.getY(),g2.getX(),g2.getY());
                 line->setPen(pen);
                 this->scene->addItem(line);
                 lines.push_back(line);
-
             }
-
         }
     }
 }
 
+void GraphContainer::zoomIn() {
+    scale(1.0 + scaleFactor, 1.0 + scaleFactor);
+}
 
+void GraphContainer::zoomOut() {
+    scale(1.0 - scaleFactor, 1.0 - scaleFactor);
+}
+
+void GraphContainer::exportToPdf() {
+
+    //
+    // TODO
+    // PDF file does occupy the entire page
+    //
+
+    QString filename("../net_setup.pdf");
+
+    QPrinter printer(QPrinter::HighResolution);
+    //printer.setFullPage(false);
+    printer.setOrientation(QPrinter::Landscape);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(filename);
+    printer.setPageMargins(0, 0, 0, 0, QPrinter::Millimeter);
+    printer.setPageSize(QPrinter::A4);
+
+    //
+    // TODO
+    // Add checks on export
+    //
+    // Example:
+    //
+    // QPrinter printer;
+    // printer.setOutputFormat(QPrinter::PdfFormat);
+    // printer.setOutputFileName("/foobar/nonwritable.pdf");
+    // QPainter painter;
+    // if (! painter.begin(&printer)) { // failed to open file
+    //     qWarning("failed to open file, is it writable?");
+    //     return 1;
+    // }
+    // painter.drawText(10, 10, "Test");
+    // if (! printer.newPage()) {
+    //     qWarning("failed in flushing page to disk, disk full?");
+    //     return 1;
+    // }
+    // painter.drawText(10, 10, "Test 2");
+    // painter.end();
+
+    QPainter painter(&printer);
+    //painter.setViewport(0, 0, scene->width(), scene->height());
+    painter.drawImage(0, 0, QImage());
+    scene->render(&painter);
+    painter.end();
+
+    std::cout << "\nExported network image to PDF\n\n";
+}
