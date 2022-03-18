@@ -21,6 +21,10 @@ GraphCircle::GraphCircle(const size_t i, const int x, const int y, QGraphicsScen
 {
     QFont f;
     f.setPointSize(6);
+
+    // if (i == 6)
+    //     this->t=new QGraphicsTextItem(QString("F"));
+    // else
     this->t=new QGraphicsTextItem(QString::number(i));//Text
     t->setFont(f);
 
@@ -28,7 +32,13 @@ GraphCircle::GraphCircle(const size_t i, const int x, const int y, QGraphicsScen
 
     this->t->setPos(x-t->boundingRect().width()/2,y-t->boundingRect().height()/2);
 
-    el->setBrush(QColor(150,255,255)); // cyan // QBrush(Qt::white) QColor(220,220,220)
+    // if (i == 0) // || i == 9 || i == 12)
+    //     el->setBrush(QColor(255,170,170));  // red   // QColor(220,220,220)
+    // else if (i == 6)
+    //     el->setBrush(QColor(255,242,170)); // yellow
+    // else
+    el->setBrush(QColor(150,255,255)); // cyan
+
     t->setDefaultTextColor(QColor(Qt::black));
 
     el->setZValue(1);//Bring forward
