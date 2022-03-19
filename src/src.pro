@@ -27,7 +27,6 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     stringlistmodel.cpp
 
-
 #RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model

@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     this->setWindowTitle("TDMH Visualizer");
-    this->setStyleSheet("QMainWindow {background: 'yellow';}");
+    this->setStyleSheet("QMainWindow {background: #EEEEEE;}");
     const double screenPercentage = 1.0; //0.8;
     resize(QDesktopWidget().availableGeometry(this).size() * screenPercentage);
 
@@ -90,8 +90,32 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(zoomOutShortcut, &QShortcut::activated, gCont, &GraphContainer::zoomOut);
 }
 
-void MainWindow::configureToolBar() 
+void MainWindow::configureToolBar()
 {
+    QString buttonStyleSheet("QPushButton { \
+                                background-color: lightblue;\
+                                border-style: outset;\
+                                border-radius: 10px;\
+                                border: 1px solid gray;\
+                                font: bold 24px;\
+                                min-width: 1em;\
+                                min-height: 1em;\
+                                padding: 6px;\
+                                margin: 2px;\
+                            }\
+                            QPushButton:pressed {\
+                                background-color: #03A9F4;\
+                                border-style: inset;\
+                            }");
+
+    /* QString lineEditStyleSheet("QLineEdit {\
+        border: 1px solid gray;\
+        border-radius: 10px;\
+        background: white;\
+        selection-background-color: darkgray;\
+        min-height: 1em;\
+    }"); */
+
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     empty->setMaximumWidth(30);
@@ -99,11 +123,13 @@ void MainWindow::configureToolBar()
 
     searchBox->setPlaceholderText("Go to line in log");
     searchBox->setMaximumWidth(400);
+    //searchBox->setStyleSheet(lineEditStyleSheet);
     auto searchShortcut = new QShortcut(QKeySequence(tr("return")), searchBox);
     searchShortcut->setContext(Qt::WidgetShortcut);
     connect(searchShortcut, &QShortcut::activated, this, &MainWindow::handleSearchLine);
     toolBar->addWidget(searchBox);
     QPushButton* searchButton = new QPushButton("Go", this);
+    searchButton->setStyleSheet(buttonStyleSheet);
     connect(searchButton, &QPushButton::released, this, &MainWindow::handleSearchLine);
     toolBar->addWidget(searchButton);
 
@@ -114,11 +140,13 @@ void MainWindow::configureToolBar()
 
     saveBox->setPlaceholderText("network.pdf");
     saveBox->setMaximumWidth(400);
+    //saveBox->setStyleSheet(lineEditStyleSheet);
     auto saveShortcut = new QShortcut(QKeySequence(tr("return")), saveBox);
     saveShortcut->setContext(Qt::WidgetShortcut);
     connect(saveShortcut, &QShortcut::activated, this, &MainWindow::handleSavePDF);
     toolBar->addWidget(saveBox);
     QPushButton* saveButton = new QPushButton("Save PDF", this);
+    saveButton->setStyleSheet(buttonStyleSheet);
     connect(saveButton, &QPushButton::released, this, &MainWindow::handleSavePDF);
     toolBar->addWidget(saveButton);
 
@@ -131,10 +159,12 @@ void MainWindow::configureToolBar()
     toolBar->addWidget(zoomLabel);
     QPushButton* zoomInButton = new QPushButton("+", this);
     zoomInButton->setMaximumWidth(50);
+    zoomInButton->setStyleSheet(buttonStyleSheet);
     toolBar->addWidget(zoomInButton);
     connect(zoomInButton, &QPushButton::released, gCont, &GraphContainer::zoomIn);
     QPushButton* zoomOutButton = new QPushButton("-", this);
     zoomOutButton->setMaximumWidth(50);
+    zoomOutButton->setStyleSheet(buttonStyleSheet);
     toolBar->addWidget(zoomOutButton);
     connect(zoomOutButton, &QPushButton::released, gCont, &GraphContainer::zoomOut);
 
@@ -157,8 +187,23 @@ void MainWindow::configureToolBar()
 
 void MainWindow::configureViews()
 {
+    QString listWStyleSheet("QListView {\
+                                background-color: #FFFFFF;\
+                            }\
+                            QListView::item:selected {\
+                                background: #03A9F4;\
+                            }\
+                            QListView::item:selected:active {\
+                                background: #03A9F4;\
+                            }\
+                            QListView::item:hover {\
+                                background: lightblue;\
+                            }");
+
     auto * const mainWindowLayout = new QHBoxLayout;
     auto * const hSplitter = new QSplitter(Qt::Horizontal);
+
+    listW->setStyleSheet(listWStyleSheet);
 
     //Init view
     listW->setUniformItemSizes(true);
