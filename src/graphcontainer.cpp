@@ -14,7 +14,6 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new
     this->setScene(scene);
     this->setBackgroundBrush(Qt::darkGray);
 
-
     // weakPen.setStyle(Qt::DashDotLine);
     // weakPen.setWidth(2);
     // weakPen.setBrush(Qt::darkGreen);
@@ -29,17 +28,17 @@ GraphContainer::GraphContainer(QWidget *parent): QGraphicsView(parent),scene(new
 
     weakPen.setStyle(Qt::SolidLine);
     weakPen.setWidth(2);
-    weakPen.setBrush(QColor(160,160,255));
+    weakPen.setBrush(QColor(160, 160, 255)); // light blue
     weakPen.setCapStyle(Qt::RoundCap);
     weakPen.setJoinStyle(Qt::RoundJoin);
 
     strongPen.setStyle(Qt::SolidLine);
     strongPen.setWidth(3);
-    strongPen.setBrush(QColor(0,0,180));
+    strongPen.setBrush(QColor(0, 0, 180)); // dark blue
     strongPen.setCapStyle(Qt::RoundCap);
     strongPen.setJoinStyle(Qt::RoundJoin);
 
-    //scale(currScale, currScale);
+    //scale(1.2, 1.2); // start by zooming the image by 20%
 }
 
 
@@ -62,8 +61,8 @@ void GraphContainer::wheelEvent(QWheelEvent* e) {
         double h = this->viewport()->height();
 
         //W and H scaled to scene
-        double wrel = this->mapToScene(QPoint(static_cast<int>(w)-1, 0)).x()-this->mapToScene(QPoint(0,0)).x();
-        double hrel = this->mapToScene(QPoint(0, static_cast<int>(h)-1)).y()-this->mapToScene(QPoint(0,0)).y();
+        double wrel = this->mapToScene(QPoint(static_cast<int>(w) - 1, 0)).x() - this->mapToScene(QPoint(0, 0)).x();
+        double hrel = this->mapToScene(QPoint(0, static_cast<int>(h) - 1)).y() - this->mapToScene(QPoint(0, 0)).y();
 
 
         double lf = posRelative.x() - posAbsolute.x() * wrel / w;
@@ -183,20 +182,20 @@ void GraphContainer::zoomOut() {
     scale(1.0 - scaleFactor, 1.0 - scaleFactor);
 }
 
-void GraphContainer::exportToPdf() {
+void GraphContainer::exportToPDF(QString filename) {
 
     //
     // TODO
     // PDF file does occupy the entire page
     //
 
-    QString filename("../net_setup.pdf");
+    QString resultFilename = "../" + filename;
 
     QPrinter printer(QPrinter::HighResolution);
     //printer.setFullPage(false);
     printer.setOrientation(QPrinter::Landscape);
     printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(filename);
+    printer.setOutputFileName(resultFilename);
     printer.setPageMargins(0, 0, 0, 0, QPrinter::Millimeter);
     printer.setPageSize(QPrinter::A4);
 
@@ -227,6 +226,4 @@ void GraphContainer::exportToPdf() {
     painter.drawImage(0, 0, QImage());
     scene->render(&painter);
     painter.end();
-
-    std::cout << "\nExported network image to PDF\n\n";
 }

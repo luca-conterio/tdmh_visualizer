@@ -6,6 +6,8 @@
 #include "logcontainer.h"
 #include <QGraphicsView>
 #include <memory>
+#include <QLineEdit>
+#include <QPushButton>
 
 /*!
  * \brief The GraphContainer class is the main widget of the graph drawing part of the GUI
@@ -51,7 +53,7 @@ public:
      * \brief wheelEvent overrides standard wheel event to add cursor-centered zoom
      * \param event the QWheelEvent
      */
-    void wheelEvent ( QWheelEvent * event ) override;
+    void wheelEvent(QWheelEvent * event) override;
 
     /*!
      * \brief configGraph configures the window with the given settings
@@ -63,7 +65,7 @@ public:
     void zoomIn();
     void zoomOut();
 
-    void exportToPdf();
+    void exportToPDF(QString filename);
 
 public slots:
 

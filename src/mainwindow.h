@@ -10,6 +10,9 @@
 #include <QMainWindow>
 #include <thread>
 #include <QListWidget>
+#include <QToolBar>
+#include <QLineEdit>
+#include <QPushButton>
 
 Q_DECLARE_METATYPE( std::vector<std::string*> )
 /*!
@@ -22,7 +25,9 @@ class MainWindow : public QMainWindow
 
 private:
     QWidget * const centralW;
-    //QToolBar *fileToolbar = nullptr;
+    QToolBar *toolBar = nullptr;
+    QLineEdit * const searchBox;
+    QLineEdit * const saveBox;
     GraphContainer * const gCont = nullptr;
     LogListView * const listW = nullptr;
     StringListModel * const model = nullptr;
@@ -42,6 +47,9 @@ private:
      * \param tsq the ts queue
      */
     void setQueue(const std::shared_ptr<TSQueue>&);
+
+    void configureToolBar();
+    void configureViews();
 public:
     /*!
      * \brief MainWindow Constructor
@@ -71,7 +79,11 @@ public:
      */
     void showStatusMessage(const QString& str);
 
-    void exportToPdf();
+    void handleSearchLine();
+    void handleSavePDF();
+
+    void focusSearchBox();
+    void focusSaveBox();
 
 signals:
 
