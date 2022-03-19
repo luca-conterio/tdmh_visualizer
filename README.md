@@ -27,7 +27,9 @@ The visualizer can operate in three different modes:
     - `BATCH` reads and processes a file
     - `RTIME` reads a file and then remains active scanning for new lines in real time
     - `STAT` produces links availabilities for the given log file
-
+    
+Summarizing, one can execute the TDMH log visualizer as: `./executable <config_file> [<log_file> [<mode>]]` 
+ 
 If `STAT` visualization mode is selected then the availabilities (timed and untimed) will be shown on the text window. Selecting a line from one of the two will display on the graph the arcs for each non-zero availability link.
 A line with little space between dashes means closer to `100%`, while a line with more space between dashes means closer to `0%`.
 
