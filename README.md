@@ -36,7 +36,7 @@ A line with little space between dashes means closer to `100%`, while a line wit
 If `BATCHFIRST` is specified in the configuration file, the program processes the entire log and then updates the GUI.   
 If not specified, it updates the GUI every time the bottom of the scroll bar is reached, so that the log can be inspected while it is being loaded.
 
-Finally, the configuration file also allows to specify the image usage as a background for the network graph, as well as the coordinates of all the network nodes. This is useful to render the network graph for example on top of the plant of the environment in which the network is deployed.
+Finally, the configuration file also allows to specify the image used as a background for the network graph, as well as the coordinates of all the network nodes. This is useful to render the network graph for example on top of the plant of the environment in which the network is deployed.
 
 ## Usage
 On the left side of the window the log file is shown: click on a row to show the network graph at that specific point in time. Dark blue lines represent strong links, while weak ones are identified by light blue lines.
