@@ -45,3 +45,5 @@ Keyboard shortcuts:
 * `Ctrl++` and `Ctrl+-` can be used to zoom the network graph image. Otherwise, a mouse scroll while keeping `Ctrl` pressed will produce the same effect.
 * `Ctrl+f` sets the focus on the log line search text box. After typing the desired line number, `Enter` can be used to trigger the search.
 * `Ctrl+s` sets the focus on the network image save text box. After typing the desired file name, `Enter` can be used to save the file.
+
+![images/tdmh_visualizer.png](images/tdmh_visualizer.png)
