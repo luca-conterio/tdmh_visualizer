@@ -5,17 +5,17 @@ This program helps visualize logs. A graph with the nodes put on the background 
 ## Compiling
 The project has been created with QT Creator.
 
-In alternative to that in the repository is a .sh that generates the makefile using qmake. QT 5.12.6 is required.
+As an alternative, the repository contains the `genMakefile.sh` script that generates a makefile using `qmake`. QT 5.12.6 is required.
 
-If libs are not detected or error on parse, make sure that qmake is using the right qt installation:
+If libs are not detected or error on parse, make sure that `qmake` is using the right QT installation:
 
 `qtchooser -install qt5.12.6 <pathtoqmake>`
 
 e.g. `qtchooser -install qt5.12.6 /opt/Qt/5.12.6/gcc_64/bin/qmake`
 
-then `export Q_SELECT=qt5.12.6`
+Then: `export Q_SELECT=qt5.12.6`
 
-Run .sh with `debug` argument to generate a debug build
+In order to generate a debug build, run `genMakefile.sh` with the `debug` argument.
 
 ## Configuration and Execution
 
