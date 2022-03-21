@@ -1,6 +1,6 @@
 # TDMH Visualizer
 
-This program helps visualize logs. A graph with the nodes put on the background image is displayed.
+This program helps to visualize [TDMH](https://github.com/fedetft/tdmh) network status from log files. A network graph with the nodes on top of a background image is displayed.
 
 ## Compiling
 The project has been created with QT Creator.
